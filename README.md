@@ -1,7 +1,8 @@
 MyModibleAssistant
 ==================
-è®¾ç½®å®ŒæˆåŽ,æ ¹æ®å½“å‰çš„ç¨‹åº,è·³è½¬åˆ°ä¸åŒçš„ç¨‹åº
-ç›´æŽ¥ç‚¹å‡»,è·³è½¬åˆ°ç¬¬ä¸€ä¸ªç¨‹åº,å·¦å³åˆ’åŠ¨,ç¬¬äºŒä¸ª,ä¸Šä¸‹åˆ’åŠ¨,ç¬¬ä¸‰ä¸ª
+ÉèÖÃÍê³Éºó,¸ù¾Ýµ±Ç°µÄ³ÌÐò,Ìø×ªµ½²»Í¬µÄ³ÌÐò
+Ö±½Óµã»÷,Ìø×ªµ½µÚÒ»¸ö³ÌÐò,×óÓÒ»®¶¯,µÚ¶þ¸ö,ÉÏÏÂ»®¶¯,µÚÈý¸ö
+Ë«»÷ ·µ»ØÇ°Ò»¸ö
 
-## ç¼–è¯‘
-éœ€è¦https://github.com/advx9600/AppGenDb(åœ¨æˆ‘è‡ªå·±ç›®å½•ä¸‹)ç”Ÿæˆç›¸åº”æ–‡ä»¶å’Œ StandOut åº“
+## ±àÒë
+ÐèÒªhttps://github.com/advx9600/AppGenDb(ÔÚÎÒ×Ô¼ºÄ¿Â¼ÏÂ)Éú³ÉÏàÓ¦ÎÄ¼þºÍ StandOut ¿â
