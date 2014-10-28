@@ -2,14 +2,11 @@ package com.dafeng.mymodibleassistant.present;
 
 import java.util.List;
 
-import wei.mark.standout.StandOutWindow.StandOutLayoutParams;
-import wei.mark.standout.ui.Window;
 import android.content.Context;
 
 import com.dafeng.mymodibleassistant.dao.TbAppDis;
 import com.dafeng.mymodibleassistant.dao.TbAppDisDao;
 import com.dafeng.mymodibleassistant.dao.TbAppDisDao.Properties;
-import com.dafeng.mymodibleassistant.floatwin.SimpleFloatingWindow;
 import com.dafeng.mymodibleassistant.util.Util;
 
 public class AppPresent {

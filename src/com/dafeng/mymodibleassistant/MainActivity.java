@@ -4,27 +4,18 @@ import java.util.List;
 
 import com.dafeng.mymodibleassistant.b.b;
 import com.dafeng.mymodibleassistant.dao.DaoSession;
-import com.dafeng.mymodibleassistant.dao.TbAppDis;
 import com.dafeng.mymodibleassistant.dao.TbAppDisDao;
 import com.dafeng.mymodibleassistant.db.DB;
 import com.dafeng.mymodibleassistant.floatwin.SimpleFloatingWindow;
 import com.dafeng.mymodibleassistant.floatwin.SimpleFloatingWindowInt;
 import com.dafeng.mymodibleassistant.present.AppPresent;
-import com.dafeng.mymodibleassistant.util.Util;
 
-import de.greenrobot.dao.query.QueryBuilder;
 import wei.mark.standout.StandOutWindow;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
-import android.text.InputFilter;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.content.ComponentName;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements MainActivityInt {

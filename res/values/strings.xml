@@ -23,6 +23,7 @@
     <string name="add_input_method">增加输入法</string>
     <string name="cancel_input_mehtod">取消输入法</string>
     <string name="already_cancel">已经取消</string>
-    <string name="class_name_not_null">请选择程序(不能为桌面),类名不能为空</string>
+    <string name="class_name_not_null">请选择程序(不能为桌面,此程序只是插件),类名不能为空</string>
+    <string name="no_history">没有历史记录</string>
 
 </resources>

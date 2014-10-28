@@ -17,6 +17,8 @@ public interface SimpleFloatingWindowInt {
 
 	public void onBottomFlip();
 
+	public void onDoubleClick();
+
 	// public void on45DegreenFlip(); // ²»×¼È·
 
 	public void setStatus(long status);

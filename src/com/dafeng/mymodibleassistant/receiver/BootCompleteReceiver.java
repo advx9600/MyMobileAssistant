@@ -1,6 +1,5 @@
 package com.dafeng.mymodibleassistant.receiver;
 
-import java.io.File;
 
 import com.dafeng.mymodibleassistant.MainActivity;
 

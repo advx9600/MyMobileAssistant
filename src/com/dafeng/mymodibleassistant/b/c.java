@@ -21,7 +21,6 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.dafeng.mymodibleassistant.R;
-import com.dafeng.mymodibleassistant.a;
 import com.dafeng.mymodibleassistant.dao.TbAppDis;
 import com.dafeng.mymodibleassistant.dao.TbAppShortcut;
 import com.dafeng.mymodibleassistant.dao.TbJumpToApp;

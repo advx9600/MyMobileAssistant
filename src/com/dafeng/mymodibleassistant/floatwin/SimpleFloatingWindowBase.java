@@ -6,6 +6,7 @@ import java.util.List;
 import com.dafeng.mymodibleassistant.R;
 import com.dafeng.mymodibleassistant.a;
 import com.dafeng.mymodibleassistant.b.c;
+import com.dafeng.mymodibleassistant.b.d;
 import com.dafeng.mymodibleassistant.dao.DaoSession;
 import com.dafeng.mymodibleassistant.dao.TbAppDis;
 import com.dafeng.mymodibleassistant.dao.TbAppDisDao;
@@ -103,6 +104,8 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	protected boolean mIsHideWinCmd = false;
 
 	protected ImageView mFloatImg;
+
+	protected List<com.dafeng.mymodibleassistant.b.d> mListPreApp = new ArrayList<>();
 
 	@SuppressLint("HandlerLeak")
 	@Override
@@ -258,8 +261,6 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 		}
 	}
 
-	private boolean mIsFlipAction = false; // used for click action check
-
 	@SuppressWarnings("deprecation")
 	final GestureDetector gestureDetector = new GestureDetector(
 
@@ -275,9 +276,23 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 		}
 
 		@Override
+		public boolean onDoubleTap(MotionEvent e) {
+			a.c("onDoubleTap");
+			((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+					.onDoubleClick();
+			return false;
+		}
+
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+			((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+					.onClick();
+			a.c("onClick");
+			return false;
+		}
+
+		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 				float velocityY) {
-			mIsFlipAction = true;
 			if (SWIPE_THRESHOLD_VELOCITY < 1) {
 				final ViewConfiguration vc = ViewConfiguration
 						.get(SimpleFloatingWindowBase.this);
@@ -348,7 +363,6 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 			case MotionEvent.ACTION_DOWN:
 				mLastDownTime = System.currentTimeMillis();
 				mLastWindow = window;
-				mIsFlipAction = false;
 				mLastDownX = window.getLayoutParams().x;
 				mLastDownY = window.getLayoutParams().y;
 				break;
@@ -356,20 +370,51 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 				break;
 			case MotionEvent.ACTION_UP:
 				mLastWindow = window;
-				if (System.currentTimeMillis() - mLastDownTime < 200
-						&& Math.abs(window.getLayoutParams().x - mLastDownX) < 10
-						&& Math.abs(window.getLayoutParams().y - mLastDownY) < 10) {
-					if (!mIsFlipAction) {
-						a.c("onClick");
-						((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-								.onClick();
-					}
-				}
 				saveLocationData(window);
 				break;
 			}
 		}
 		return super.onTouchBody(id, window, view, event);
+	}
+
+	private void addPreApp(String pkg, String name) {
+		if (pkg == null || name == null || pkg.length() == 0
+				|| name.length() == 0) {
+			return;
+		}
+		d d = new d(pkg, name);
+		if (mListPreApp.size() == 0) {
+			mListPreApp.add(d);
+			return;
+		} else
+			for (int i = 0; i < mListPreApp.size(); i++) {
+				d temp = mListPreApp.get(i);
+				if (temp.isEqual(d)) {
+					mListPreApp.remove(i);
+					mListPreApp.add(d);
+					break;
+				} else if (i == mListPreApp.size() - 1) {
+					mListPreApp.add(d);
+					break;
+				}
+			}
+	}
+
+	protected void startPreApp() {
+		boolean isOk = false;
+		if (mListPreApp.size() > 0) {
+			for (int i = mListPreApp.size(); i > -1; i--) {
+				d pre = mListPreApp.get(mListPreApp.size() - 1);
+				if (!pre.isEqual(mTopActivePkg, mTopActiveName)) {
+					isOk = true;
+					startOutSideActivity(pre.getPkg(), pre.getName());
+					break;
+				}
+			}
+		}
+		if (!isOk) {
+			toast(R.string.no_history);
+		}
 	}
 
 	protected void startOutSideActivity(TbAppShortcut shortcut) {
@@ -383,10 +428,17 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 
 	}
 
+	protected void startOutSideActivity(String pkg, String name) {
+		startOutSideActivity(pkg, name, false, null);
+	}
+
 	private long tStartOutSideActivity_LastTime = 0;
 
 	private void startOutSideActivity(String pkg, String name,
 			boolean isShowInputMethod, String curInputMethod) {
+
+		addPreApp(this.mTopActivePkg, this.mTopActiveName);
+
 		boolean isHasStarted = false;
 		try {
 			final ActivityManager am = (ActivityManager) this

@@ -130,6 +130,7 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 					frame, true);
 			mFloatImg = (ImageView) mHolderLayout.findViewById(R.id.float_img);
 			new ThreadCheck().start();
+			mListPreApp.clear();
 		}
 	}
 
@@ -286,6 +287,11 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 		} else {
 			show(POP_WIN_ID);
 		}
+	}
+
+	@Override
+	public void onDoubleClick() {
+		startPreApp();
 	}
 
 	@Override
@@ -454,6 +460,7 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 				return;
 			int okPng = R.drawable.ok_circle;
 			if (isNeedAlwaysShow()) {
+				mFloatImg.setImageDrawable(null);
 				mFloatImg.setBackgroundResource(okPng);
 				closePopWin();
 			}
