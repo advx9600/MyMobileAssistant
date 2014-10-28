@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@drawable/floating_icon"
-        android:orientation="vertical"
-        android:padding="8dp" >
-    </LinearLayout>
+        android:layout_height="fill_parent" >
+
+        <ImageView
+            android:id="@+id/float_img"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@drawable/floating_icon"
+            android:contentDescription="@null" />
+    </FrameLayout>
 
 </merge>

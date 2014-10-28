@@ -8,9 +8,51 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.dafeng.mymodibleassistant.MainActivity$PlaceholderFragment" >
 
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="homePageDispaly"
+            android:text="@+string/float_win_homepage_display" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="centerDisplay"
+            android:text="@+string/float_win_center_display" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:id="@+id/text_float_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="adjustFloatWinSize"
+                android:text="@+string/adjust_win_size" />
+        </LinearLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btnTest"
+            android:text="test" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="0dip"
+        android:layout_height="0dip"
         android:text="@string/hello_world" />
 
 </RelativeLayout>

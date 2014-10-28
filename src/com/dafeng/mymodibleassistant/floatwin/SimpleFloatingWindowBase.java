@@ -1,0 +1,446 @@
+package com.dafeng.mymodibleassistant.floatwin;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.dafeng.mymodibleassistant.R;
+import com.dafeng.mymodibleassistant.a;
+import com.dafeng.mymodibleassistant.b.c;
+import com.dafeng.mymodibleassistant.dao.DaoSession;
+import com.dafeng.mymodibleassistant.dao.TbAppDis;
+import com.dafeng.mymodibleassistant.dao.TbAppDisDao;
+import com.dafeng.mymodibleassistant.dao.TbAppShortcut;
+import com.dafeng.mymodibleassistant.dao.TbAppShortcutDao;
+import com.dafeng.mymodibleassistant.dao.TbJumpToApp;
+import com.dafeng.mymodibleassistant.dao.TbJumpToAppDao;
+import com.dafeng.mymodibleassistant.db.DB;
+import com.dafeng.mymodibleassistant.present.AppPresent;
+import com.dafeng.mymodibleassistant.util.Util;
+
+import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.os.Handler;
+import android.os.Message;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.Toast;
+import wei.mark.standout.StandOutWindow;
+import wei.mark.standout.ui.Window;
+
+public class SimpleFloatingWindowBase extends StandOutWindow {
+	public static final int MY_DEFAULT_ID = 0x1000;
+	protected static final int POP_WIN_ID = 0x1001;
+
+	public final static long STATUS_NORMAL = 1;
+	public final static long STATUS_POS_INDEPENDENT = (0x1 << 1);
+	public final static long STATUS_ADD_SHOW_PAGE = (0x1 << 2);
+	public final static long STATUS_NOT_SHOW_THIS_PAGE = (0x1 << 3);
+	public final static long STATUS_ADD_JUMP_APP_SHORTCUT = (0x1 << 4);
+	public final static long STATUS_DEL_JUMP_APP_SHORTCUT = (0x1 << 5);
+	public final static long STATUS_MOD_JUMP_APP_SHORTCUT = (0x1 << 6);
+	public final static long STATUS_ADD_JUMP_APP_INPUTMETHOD = (0x1 << 7);
+	public final static long STATUS_CANCEL_JUMP_APP_INPUTMETHOD = (0x1 << 8);
+	public final static long STATUS_ADD_APP_SHORTCUT = (0x1 << 9);
+	public final static long STATUS_JUMP_TO_APP_SHORTCUT = (0x1 << 10);
+	public final static long STATUS_DEL_APP_SHORTCUT = (0x1 << 11);
+	public final static long STATUS_MOD_APP_SHORTCUT = (0x1 << 12);
+	public final static long STATUS_ADD_APP_SHORTCUT_INPUTMETHOD = (0x1 << 13);
+	public final static long STATUS_CANCEL_APP_SHORTCUT_INPUTMETHOD = (0x1 << 14);
+
+	private static List<Long> LIST_ACTION_ALWAY_SHOW;
+
+	static {
+		LIST_ACTION_ALWAY_SHOW = new ArrayList<Long>();
+		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_SHOW_PAGE);
+		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_JUMP_APP_SHORTCUT);
+		LIST_ACTION_ALWAY_SHOW.add(STATUS_MOD_JUMP_APP_SHORTCUT);
+		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_JUMP_APP_INPUTMETHOD);
+		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_APP_SHORTCUT);
+		LIST_ACTION_ALWAY_SHOW.add(STATUS_MOD_APP_SHORTCUT);
+		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_APP_SHORTCUT_INPUTMETHOD);
+	}
+
+	protected static Handler handle;
+
+	protected SharedPreferences mShare;
+
+	protected static Window mLastWindow;
+	protected static int mLastDownX;
+	protected static int mLastDownY;
+
+	protected boolean mIsQuit = false; // only for MY_DEFAULT_ID
+
+	public static boolean IsShowInCenter = false;
+	public static boolean IsPopShowDefault = false;
+
+	protected String mTopActivePkg = "";
+	protected String mTopActiveName = "";
+
+	protected SQLiteDatabase mDb;
+	protected DaoSession mDaoSession;
+	protected TbAppDisDao mAppDisDao;
+	protected TbJumpToAppDao mJumpToAppDao;
+	protected TbAppShortcutDao mAppShortcutDao;
+	protected TbAppDis mAppDis;
+	protected List<TbJumpToApp> mListTbJump;
+	protected List<TbAppShortcut> mListAppshortcut;
+
+	public long mStatus = STATUS_NORMAL;
+
+	private boolean mIsShowNow = true;
+	private long mLastDownTime = 0;
+
+	protected boolean mIsHideWinCmd = false;
+
+	protected ImageView mFloatImg;
+
+	@SuppressLint("HandlerLeak")
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		initDB();
+		mShare = this.getSharedPreferences(
+				SimpleFloatingWindowInt.PREF_FILE_NAME, MODE_PRIVATE);
+		if (handle == null)
+			handle = new Handler() {
+
+				@Override
+				public void handleMessage(Message msg) {
+					switch (msg.what) {
+					case 1:
+						mAppDis = AppPresent.getTbAppDisByPkg(mTopActivePkg,
+								mAppDisDao);
+						mListTbJump = null;
+						if (mAppDis != null) {
+							mListTbJump = mJumpToAppDao
+									.queryBuilder()
+									.where(TbJumpToAppDao.Properties.AppId
+											.eq(mAppDis.getId())).list();
+						}
+						mListAppshortcut = mAppShortcutDao.queryBuilder()
+								.list();
+						if (mAppDis != null) {
+							if (!mIsShowNow) {
+								mIsShowNow = true;
+								show();
+							}
+							Window window = getWindow(MY_DEFAULT_ID);
+							if (mAppDis.getIsPosIndependent()) {
+								setStatus(STATUS_POS_INDEPENDENT, false);
+								c.a(window, mAppDis);
+							} else {
+								setStatus(~STATUS_POS_INDEPENDENT, false);
+								c.b(window, mShare);
+							}
+							if (!isNeedAlwaysShow()) {
+								if (mListTbJump.size() > 0) {
+									mFloatImg
+											.setImageDrawable(Util
+													.getIconByAppPkg(
+															SimpleFloatingWindowBase.this,
+															mListTbJump.get(0)
+																	.getPkg()));
+									mFloatImg
+											.setBackgroundColor(Color.TRANSPARENT);
+								} else {
+									mFloatImg.setImageDrawable(null);
+									mFloatImg
+											.setBackgroundResource(R.drawable.floating_icon);
+								}
+							}
+						} else {
+							if (!isNeedAlwaysShow()) {
+								if (mIsShowNow) {
+									mIsShowNow = false;
+									hide();
+								}
+							}
+						}
+						break;
+					case 2:
+						if (mIsHideWinCmd) {
+							hide();
+							mIsHideWinCmd = false;
+						} else {
+							show();
+						}
+						break;
+					}
+				}
+			};
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		if (mDb != null)
+			mDb.close();
+	}
+
+	protected void initDB() {
+		mDb = DB.getWritableDb(this);
+		mDaoSession = DB.getDaoSession(mDb);
+		mAppDisDao = mDaoSession.getTbAppDisDao();
+		mJumpToAppDao = mDaoSession.getTbJumpToAppDao();
+		mAppShortcutDao = mDaoSession.getTbAppShortcutDao();
+	}
+
+	@Override
+	public String getAppName() {
+		return "SimpleWindow";
+	}
+
+	@Override
+	public int getAppIcon() {
+		return android.R.drawable.ic_menu_close_clear_cancel;
+	}
+
+	@Override
+	public void createAndAttachView(int id, FrameLayout frame) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public StandOutLayoutParams getParams(int id, Window window) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected void toast(int id) {
+		Toast.makeText(this.getApplicationContext(), id, Toast.LENGTH_LONG)
+				.show();
+	}
+
+	private void savePopLocationData(Window window) {
+		mShare.edit().putInt("pop_x", window.getLayoutParams().x).commit();
+		mShare.edit().putInt("pop_y", window.getLayoutParams().y).commit();
+	}
+
+	protected void saveLocationData(Window window) {
+		if (((SimpleFloatingWindowInt) (this)).isStatus(STATUS_POS_INDEPENDENT)) {
+			mAppDis.setX(window.getLayoutParams().x);
+			mAppDis.setY(window.getLayoutParams().y);
+			mAppDisDao.update(mAppDis);
+		} else {
+			mShare.edit().putInt("x", window.getLayoutParams().x).commit();
+			mShare.edit().putInt("y", window.getLayoutParams().y).commit();
+		}
+	}
+
+	protected boolean isNeedAlwaysShow() {
+		for (int i = 0; i < LIST_ACTION_ALWAY_SHOW.size(); i++) {
+			if (((SimpleFloatingWindowInt) (this))
+					.isStatus(LIST_ACTION_ALWAY_SHOW.get(i))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected void setReverseStatus() {
+		for (int i = 0; i < LIST_ACTION_ALWAY_SHOW.size(); i++) {
+			if (((SimpleFloatingWindowInt) (this))
+					.isStatus(LIST_ACTION_ALWAY_SHOW.get(i))) {
+				((SimpleFloatingWindowInt) (this))
+						.setStatus(~LIST_ACTION_ALWAY_SHOW.get(i));
+			}
+		}
+	}
+
+	private boolean mIsFlipAction = false; // used for click action check
+
+	@SuppressWarnings("deprecation")
+	final GestureDetector gestureDetector = new GestureDetector(
+
+	new GestureDetector.SimpleOnGestureListener() {
+		// private int SWIPE_MIN_DISTANCE = 0;
+		private int SWIPE_THRESHOLD_VELOCITY = 0;
+
+		@Override
+		public void onLongPress(MotionEvent e) {
+			a.c("onLongClick");
+			((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+					.onLongClick();
+		}
+
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+				float velocityY) {
+			mIsFlipAction = true;
+			if (SWIPE_THRESHOLD_VELOCITY < 1) {
+				final ViewConfiguration vc = ViewConfiguration
+						.get(SimpleFloatingWindowBase.this);
+				// SWIPE_MIN_DISTANCE = vc.getScaledPagingTouchSlop();
+				SWIPE_THRESHOLD_VELOCITY = vc.getScaledMinimumFlingVelocity();
+			}
+			int durTime = (int) Math.abs(System.currentTimeMillis()
+					- mLastDownTime);
+			if (durTime > 350)
+				return false;
+
+			float xDis = e1.getX() - e2.getX();
+			float yDis = e1.getY() - e2.getY();
+			float rate = xDis / yDis;
+			// a.b("xDis:" + xDis + ",yDis:" + yDis + ",rate:" + rate);
+			boolean isFlipOk = false;
+			if (Math.abs(rate) > 1) {
+				isFlipOk = true;
+				if (rate > 0) {
+					a.c("onLeftFlip");
+					((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+							.onLeftFlip();
+				} else {
+					a.c("onRightFlip");
+					((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+							.onRightFlip();
+				}
+			} else {
+				isFlipOk = true;
+				if (rate > 0) {
+					a.c("onTopFlip");
+					((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+							.onTopFlip();
+				} else {
+					a.c("onBottomFlip");
+					((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+							.onBottomFlip();
+				}
+			}
+
+			if (isFlipOk) {
+				StandOutLayoutParams params = mLastWindow.getLayoutParams();
+				if (params != null) {
+					params.x = mLastDownX;
+					params.y = mLastDownY;
+					mLastWindow.setLayoutParams(params);
+					mLastWindow.edit().commit();
+
+					saveLocationData(mLastWindow);
+				}
+			}
+
+			return false;
+		}
+	});
+
+	@Override
+	public boolean onTouchBody(int id, Window window, View view,
+			MotionEvent event) {
+		if (id == POP_WIN_ID) {
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_UP:
+				savePopLocationData(window);
+			}
+		} else {
+			gestureDetector.onTouchEvent(event);
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				mLastDownTime = System.currentTimeMillis();
+				mLastWindow = window;
+				mIsFlipAction = false;
+				mLastDownX = window.getLayoutParams().x;
+				mLastDownY = window.getLayoutParams().y;
+				break;
+			case MotionEvent.ACTION_MOVE:
+				break;
+			case MotionEvent.ACTION_UP:
+				mLastWindow = window;
+				if (System.currentTimeMillis() - mLastDownTime < 200
+						&& Math.abs(window.getLayoutParams().x - mLastDownX) < 10
+						&& Math.abs(window.getLayoutParams().y - mLastDownY) < 10) {
+					if (!mIsFlipAction) {
+						a.c("onClick");
+						((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+								.onClick();
+					}
+				}
+				saveLocationData(window);
+				break;
+			}
+		}
+		return super.onTouchBody(id, window, view, event);
+	}
+
+	protected void startOutSideActivity(TbAppShortcut shortcut) {
+		startOutSideActivity(shortcut.getPkg(), shortcut.getName(),
+				shortcut.getIsShowInputPicker(), shortcut.getInputMethod());
+	}
+
+	protected void startOutSideActivity(TbJumpToApp jump) {
+		startOutSideActivity(jump.getPkg(), jump.getName(),
+				jump.getIsShowInputPicker(), jump.getInputMethod());
+
+	}
+
+	private long tStartOutSideActivity_LastTime = 0;
+
+	private void startOutSideActivity(String pkg, String name,
+			boolean isShowInputMethod, String curInputMethod) {
+		boolean isHasStarted = false;
+		try {
+			final ActivityManager am = (ActivityManager) this
+					.getSystemService(ACTIVITY_SERVICE);
+			List<ActivityManager.RunningTaskInfo> taskInfo = am
+					.getRunningTasks(100);
+			for (int i = 0; i < taskInfo.size(); i++) {
+				final ActivityManager.RunningTaskInfo info = taskInfo.get(i);
+				if (pkg.equals(info.topActivity.getPackageName())) {
+					/* android权限问题,切换时间要大于N秒 */
+					if (Math.abs(System.currentTimeMillis()
+							- tStartOutSideActivity_LastTime) > 5 * 1000) {
+						tStartOutSideActivity_LastTime = System
+								.currentTimeMillis();
+						am.moveTaskToFront(info.id,
+								ActivityManager.MOVE_TASK_WITH_HOME);
+						isHasStarted = true;
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (!isHasStarted) {
+			Intent intent = new Intent();
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.setComponent(new ComponentName(pkg, name));
+			this.startActivity(intent);
+		}
+
+		if (isShowInputMethod) {
+			if (curInputMethod != null
+					&& !curInputMethod.equals(Util.getCurrenInputMethod(this))) {
+				InputMethodManager imeManager = (InputMethodManager) getApplicationContext()
+						.getSystemService(INPUT_METHOD_SERVICE);
+				if (imeManager != null) {
+					imeManager.showInputMethodPicker();
+				}
+			}
+		}
+	}
+
+	/*
+	 * need to rewrite
+	 */
+	public void hide() {
+
+	}
+
+	protected void show() {
+
+	}
+
+	public void setStatus(long status, boolean isHaveOthers) {
+	}
+}

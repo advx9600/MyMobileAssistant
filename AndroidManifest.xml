@@ -5,10 +5,13 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="14"
         android:targetSdkVersion="21" />
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
 
     <application
         android:allowBackup="true"
@@ -25,8 +28,13 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.dafeng.mymodibleassistant.SimpleWindow" >
-        </service>
+        <service android:name="com.dafeng.mymodibleassistant.floatwin.SimpleFloatingWindow" />
+
+        <receiver android:name="com.dafeng.mymodibleassistant.receiver.BootCompleteReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
