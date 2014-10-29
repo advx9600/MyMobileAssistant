@@ -4,7 +4,7 @@
 /obj
 /libs
 /assets
-
+src/com/dafeng/mymodibleassistant/TestAcvitiy.java
 *.project
 *.so
 project.properties

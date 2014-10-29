@@ -2,8 +2,8 @@ package com.dafeng.mymodibleassistant.db;
 
 import com.dafeng.mymodibleassistant.dao.DaoMaster;
 import com.dafeng.mymodibleassistant.dao.DaoSession;
-import com.dafeng.mymodibleassistant.dao.TbAppDis;
-import com.dafeng.mymodibleassistant.dao.TbAppDisDao;
+import com.dafeng.mymodibleassistant.dao.TbApp;
+import com.dafeng.mymodibleassistant.dao.TbAppDao;
 import com.dafeng.mymodibleassistant.util.Util;
 
 import android.content.Context;
@@ -14,23 +14,25 @@ public class ExtraDaoMater {
 	public static void onCreate(SQLiteDatabase db, Context con) {
 		DaoMaster daoMaster = new DaoMaster(db);
 		DaoSession daoSession = daoMaster.newSession();
-		TbAppDisDao dao = daoSession.getTbAppDisDao();
+		TbAppDao dao = daoSession.getTbAppDao();
 
 		addSelf(con, dao);
 		addLaucher(con, dao);
 	}
 
-	private static void addSelf(Context con, TbAppDisDao dao) {
-		TbAppDis tb = new TbAppDis();
+	private static void addSelf(Context con, TbAppDao dao) {
+		TbApp tb = new TbApp();
 		ActivityInfo info = Util.getSelfActivityInfo(con);
 		tb.setPkg(info.packageName);
+		tb.setName(info.name);
 		dao.insert(tb);
 	}
 
-	private static void addLaucher(Context con, TbAppDisDao dao) {
-		TbAppDis tb = new TbAppDis();
+	private static void addLaucher(Context con, TbAppDao dao) {
+		TbApp tb = new TbApp();
 		ActivityInfo info = Util.getLauncherActivityInfo(con);
 		tb.setPkg(info.packageName);
+		tb.setName(info.name);
 		dao.insert(tb);
 	}
 	/*

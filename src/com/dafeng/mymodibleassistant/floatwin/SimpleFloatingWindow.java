@@ -6,9 +6,7 @@ import java.util.List;
 import com.dafeng.mymodibleassistant.R;
 import com.dafeng.mymodibleassistant.a;
 import com.dafeng.mymodibleassistant.b.c;
-import com.dafeng.mymodibleassistant.dao.TbAppDis;
-import com.dafeng.mymodibleassistant.dao.TbAppShortcut;
-import com.dafeng.mymodibleassistant.dao.TbJumpToApp;
+import com.dafeng.mymodibleassistant.dao.TbApp;
 import com.dafeng.mymodibleassistant.present.AppPresent;
 import com.dafeng.mymodibleassistant.util.Util;
 
@@ -79,9 +77,7 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 		if (id == POP_WIN_ID) {
 			if (!focus) {
 				closePopWin();
-				Message msg = new Message();
-				msg.what = 2;
-				handle.sendMessageDelayed(msg, 200); // 需要延迟显示,不然显示菜单时点击弹出框位置都会消失
+				show();
 				return false;
 			}
 		}
@@ -116,7 +112,7 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 			{
 				LinearLayout lay = (LinearLayout) v
 						.findViewById(R.id.layout_jump_shortcut);
-				c.d(mListTbJump, lay, this, inflater, v);
+				c.d(mApp.getId(), mListTbJump, lay, this, inflater, v);
 			}
 			{
 				LinearLayout layShortcut = (LinearLayout) v
@@ -173,12 +169,14 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 	}
 
 	public void show() {
-		mHolderLayout.setEnabled(true);
+		Message msg = new Message();
+		msg.what = 2;
+		handle.sendMessageDelayed(msg, 200);
 		mHolderLayout.setVisibility(View.VISIBLE);
 	}
 
 	public void hide() {
-		mHolderLayout.setEnabled(false);
+		mIsTempIgnoreTouch = true;
 		mHolderLayout.setVisibility(View.GONE);
 	}
 
@@ -278,7 +276,7 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 			return;
 		}
 
-		if (mAppDis != null) {
+		if (mApp != null) {
 			if (mListTbJump != null && mListTbJump.size() == 0) {
 				show(POP_WIN_ID);
 			} else {
@@ -339,37 +337,33 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 	public void setStatus(long status, boolean isHaveOthers) {
 		int bit1Count = 0;
 		if (status == STATUS_NOT_SHOW_THIS_PAGE) {
-			mIsHideWinCmd = true;
-			mAppDisDao.delete(mAppDis);
-			if (mListTbJump != null && mListTbJump.size() > 0) {
-				for (int i = 0; i < mListTbJump.size(); i++)
-					mJumpToAppDao.delete(mListTbJump.get(i));
-			}
+			mApp.setIsShow(false);
+			mAppDao.update(mApp);
 			reFreshPage();
 			return;
 		} else if (status == STATUS_DEL_JUMP_APP_SHORTCUT) {
-			mJumpToAppDao.deleteByKey(mStoreId);
+			AppPresent.delJumpApp(mStoreId);
 			reFreshPage();
 			return;
-		} else if (status == STATUS_CANCEL_JUMP_APP_INPUTMETHOD) {
-			TbJumpToApp jump = mJumpToAppDao.findById(mStoreId);
+		} else if (status == STATUS_CANCEL_APP_INPUTMETHOD) {
+			TbApp jump = mAppDao.findById(mStoreId);
 			jump.setIsShowInputPicker(false);
-			mJumpToAppDao.update(jump);
+			mAppDao.update(jump);
 			reFreshPage();
 			return;
 		} else if (status == STATUS_JUMP_TO_APP_SHORTCUT) {
-			TbAppShortcut shortcut = mAppShortcutDao.findById(mStoreId);
+			TbApp shortcut = mAppDao.findById(mStoreId);
 			startOutSideActivity(shortcut);
 			reFreshPage();
 			return;
 		} else if (status == STATUS_DEL_APP_SHORTCUT) {
-			mAppShortcutDao.deleteByKey(mStoreId);
+			AppPresent.delShortcut(mStoreId);
 			reFreshPage();
 			return;
 		} else if (status == STATUS_CANCEL_APP_SHORTCUT_INPUTMETHOD) {
-			TbAppShortcut shortcut = mAppShortcutDao.findById(mStoreId);
-			shortcut.setIsShowInputPicker(false);
-			mAppShortcutDao.update(shortcut);
+			TbApp app = mAppDao.findById(mStoreId);
+			app.setIsShowInputPicker(false);
+			mAppDao.update(app);
 			reFreshPage();
 			return;
 		}
@@ -386,66 +380,31 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 			}
 			if (isNeedAlwaysShow()) {
 				if (mTopActiveName == null || mTopActiveName.length() == 0) {
-					toast(R.string.class_name_not_null);
-					return;
+					if (!isStatus(STATUS_ADD_SHOW_PAGE)
+							&& !isStatus(STATUS_ADD_APP_INPUTMETHOD)) {
+						toast(R.string.class_name_not_null);
+						return;
+					}
 				}
 			}
 
 			long reverseStatus = ~status;
 			if (reverseStatus == STATUS_ADD_SHOW_PAGE) {
-				if (mAppDis == null) {
-					mAppDis = new TbAppDis();
-				}
-				mAppDis.setPkg(mTopActivePkg);
-				AppPresent.insertOrReplace(mAppDisDao, mAppDis);
+				AppPresent.addShowPage(mTopActivePkg, mTopActiveName);
 			} else if (reverseStatus == STATUS_POS_INDEPENDENT) {
-				mAppDis.setIsPosIndependent(false);
-				mAppDisDao.update(mAppDis);
-				reFreshPage();
+				mApp.setIsPosIndependent(false);
+				mAppDao.update(mApp);
 			} else if (reverseStatus == STATUS_ADD_JUMP_APP_SHORTCUT) {
-				TbAppDis app = mAppDisDao.findById(mStoreId);
-				List<TbJumpToApp> list = app.getTbJumpToAppList();
-				boolean isHave = false;
-				for (int i = 0; i < list.size(); i++) {
-					TbJumpToApp jumpApp = list.get(i);
-					if (jumpApp.getPkg().equals(mTopActivePkg)
-							&& jumpApp.getName().equals(mTopActiveName)) {
-						isHave = true;
-						break;
-					}
-				}
-				if (!isHave) {
-					TbJumpToApp jumpApp = new TbJumpToApp();
-					jumpApp.setAppId(app.getId());
-					jumpApp.setPkg(mTopActivePkg);
-					jumpApp.setName(mTopActiveName);
-					mJumpToAppDao.insert(jumpApp);
-				}
+				AppPresent.addJumpApp(mStoreId, mTopActivePkg, mTopActiveName);
 			} else if (reverseStatus == STATUS_MOD_JUMP_APP_SHORTCUT) {
-				TbJumpToApp jump = mJumpToAppDao.findById(mStoreId);
-				jump.setPkg(mTopActivePkg);
-				jump.setName(mTopActiveName);
-				mJumpToAppDao.update(jump);
-			} else if (reverseStatus == STATUS_ADD_JUMP_APP_INPUTMETHOD) {
-				TbJumpToApp jump = mJumpToAppDao.findById(mStoreId);
-				jump.setIsShowInputPicker(true);
-				jump.setInputMethod(Util.getCurrenInputMethod(this));
-				mJumpToAppDao.update(jump);
+				AppPresent.modJumpApp(mStoreId, mTopActivePkg, mTopActiveName);
+			} else if (reverseStatus == STATUS_ADD_APP_INPUTMETHOD) {
+				AppPresent.addInputMethod(mStoreId,
+						Util.getCurrenInputMethod(this));
 			} else if (reverseStatus == STATUS_ADD_APP_SHORTCUT) {
-				TbAppShortcut shortcut = new TbAppShortcut();
-				shortcut.setPkg(mTopActivePkg);
-				shortcut.setName(mTopActiveName);
-				mAppShortcutDao.insert(shortcut);
+				AppPresent.addShortcut(mTopActivePkg, mTopActiveName);
 			} else if (reverseStatus == STATUS_MOD_APP_SHORTCUT) {
-				TbAppShortcut shortcut = mAppShortcutDao.findById(mStoreId);
-				shortcut.setPkg(mTopActivePkg);
-				shortcut.setName(mTopActiveName);
-				mAppShortcutDao.update(shortcut);
-			} else if (reverseStatus == STATUS_ADD_APP_SHORTCUT_INPUTMETHOD) {
-				TbAppShortcut shortcut = mAppShortcutDao.findById(mStoreId);
-				shortcut.setIsShowInputPicker(true);
-				shortcut.setInputMethod(Util.getCurrenInputMethod(this));
-				mAppShortcutDao.update(shortcut);
+				AppPresent.modShortcut(mStoreId, mTopActivePkg, mTopActiveName);
 			}
 
 			if (isNeedAlwaysShow()) {
@@ -468,11 +427,11 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 			if (status == STATUS_ADD_SHOW_PAGE) {
 				toast(R.string.open_add_page_app_please);
 			} else if (status == STATUS_POS_INDEPENDENT) {
-				mAppDis.setIsPosIndependent(true);
-				mAppDisDao.update(mAppDis);
+				mApp.setIsPosIndependent(true);
+				mAppDao.update(mApp);
 				reFreshPage();
 			} else if (status == STATUS_ADD_JUMP_APP_SHORTCUT) {
-				mStoreId = mAppDis.getId();
+				mStoreId = mApp.getId();
 				toast(R.string.open_add_page_app_please);
 			}
 		}

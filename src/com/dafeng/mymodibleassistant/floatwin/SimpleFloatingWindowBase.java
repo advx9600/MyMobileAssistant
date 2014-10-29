@@ -6,14 +6,11 @@ import java.util.List;
 import com.dafeng.mymodibleassistant.R;
 import com.dafeng.mymodibleassistant.a;
 import com.dafeng.mymodibleassistant.b.c;
-import com.dafeng.mymodibleassistant.b.d;
 import com.dafeng.mymodibleassistant.dao.DaoSession;
-import com.dafeng.mymodibleassistant.dao.TbAppDis;
-import com.dafeng.mymodibleassistant.dao.TbAppDisDao;
-import com.dafeng.mymodibleassistant.dao.TbAppShortcut;
-import com.dafeng.mymodibleassistant.dao.TbAppShortcutDao;
-import com.dafeng.mymodibleassistant.dao.TbJumpToApp;
-import com.dafeng.mymodibleassistant.dao.TbJumpToAppDao;
+import com.dafeng.mymodibleassistant.dao.TbApp;
+import com.dafeng.mymodibleassistant.dao.TbAppDao;
+import com.dafeng.mymodibleassistant.dao.TbJumpDao;
+import com.dafeng.mymodibleassistant.dao.TbShortcutDao;
 import com.dafeng.mymodibleassistant.db.DB;
 import com.dafeng.mymodibleassistant.present.AppPresent;
 import com.dafeng.mymodibleassistant.util.Util;
@@ -49,8 +46,8 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	public final static long STATUS_ADD_JUMP_APP_SHORTCUT = (0x1 << 4);
 	public final static long STATUS_DEL_JUMP_APP_SHORTCUT = (0x1 << 5);
 	public final static long STATUS_MOD_JUMP_APP_SHORTCUT = (0x1 << 6);
-	public final static long STATUS_ADD_JUMP_APP_INPUTMETHOD = (0x1 << 7);
-	public final static long STATUS_CANCEL_JUMP_APP_INPUTMETHOD = (0x1 << 8);
+	public final static long STATUS_ADD_APP_INPUTMETHOD = (0x1 << 7);
+	public final static long STATUS_CANCEL_APP_INPUTMETHOD = (0x1 << 8);
 	public final static long STATUS_ADD_APP_SHORTCUT = (0x1 << 9);
 	public final static long STATUS_JUMP_TO_APP_SHORTCUT = (0x1 << 10);
 	public final static long STATUS_DEL_APP_SHORTCUT = (0x1 << 11);
@@ -65,7 +62,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_SHOW_PAGE);
 		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_JUMP_APP_SHORTCUT);
 		LIST_ACTION_ALWAY_SHOW.add(STATUS_MOD_JUMP_APP_SHORTCUT);
-		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_JUMP_APP_INPUTMETHOD);
+		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_APP_INPUTMETHOD);
 		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_APP_SHORTCUT);
 		LIST_ACTION_ALWAY_SHOW.add(STATUS_MOD_APP_SHORTCUT);
 		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_APP_SHORTCUT_INPUTMETHOD);
@@ -89,23 +86,24 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 
 	protected SQLiteDatabase mDb;
 	protected DaoSession mDaoSession;
-	protected TbAppDisDao mAppDisDao;
-	protected TbJumpToAppDao mJumpToAppDao;
-	protected TbAppShortcutDao mAppShortcutDao;
-	protected TbAppDis mAppDis;
-	protected List<TbJumpToApp> mListTbJump;
-	protected List<TbAppShortcut> mListAppshortcut;
+	protected TbAppDao mAppDao;
+	protected TbShortcutDao mShortcutDao;
+	protected TbJumpDao mJumpToAppDao;
+	protected TbApp mApp;
+	protected List<TbApp> mListTbJump;
+	protected List<TbApp> mListAppshortcut;
 
 	public long mStatus = STATUS_NORMAL;
 
 	private boolean mIsShowNow = true;
+
 	private long mLastDownTime = 0;
 
-	protected boolean mIsHideWinCmd = false;
+	protected boolean mIsTempIgnoreTouch = false;
 
 	protected ImageView mFloatImg;
 
-	protected List<com.dafeng.mymodibleassistant.b.d> mListPreApp = new ArrayList<>();
+	protected List<TbApp> mListPreApp = new ArrayList<>();
 
 	@SuppressLint("HandlerLeak")
 	@Override
@@ -121,26 +119,25 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 				public void handleMessage(Message msg) {
 					switch (msg.what) {
 					case 1:
-						mAppDis = AppPresent.getTbAppDisByPkg(mTopActivePkg,
-								mAppDisDao);
+						mApp = AppPresent.getTbApp(mTopActivePkg,
+								mTopActiveName);
 						mListTbJump = null;
-						if (mAppDis != null) {
-							mListTbJump = mJumpToAppDao
-									.queryBuilder()
-									.where(TbJumpToAppDao.Properties.AppId
-											.eq(mAppDis.getId())).list();
+						if (mApp != null) {
+							mListTbJump = AppPresent.getJumpApps(mApp.getId());
 						}
-						mListAppshortcut = mAppShortcutDao.queryBuilder()
-								.list();
-						if (mAppDis != null) {
-							if (!mIsShowNow) {
-								mIsShowNow = true;
-								show();
+						mListAppshortcut = AppPresent.getShortcuts();
+						if (mApp != null) {
+							if (mApp.getIsShow()) {
+								show2();
+								addPreApp(mApp);
+							} else {
+								hide2();
 							}
+
 							Window window = getWindow(MY_DEFAULT_ID);
-							if (mAppDis.getIsPosIndependent()) {
+							if (mApp.getIsPosIndependent()) {
 								setStatus(STATUS_POS_INDEPENDENT, false);
-								c.a(window, mAppDis);
+								c.a(window, mApp);
 							} else {
 								setStatus(~STATUS_POS_INDEPENDENT, false);
 								c.b(window, mShare);
@@ -162,21 +159,11 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 								}
 							}
 						} else {
-							if (!isNeedAlwaysShow()) {
-								if (mIsShowNow) {
-									mIsShowNow = false;
-									hide();
-								}
-							}
+							hide2();
 						}
 						break;
 					case 2:
-						if (mIsHideWinCmd) {
-							hide();
-							mIsHideWinCmd = false;
-						} else {
-							show();
-						}
+						mIsTempIgnoreTouch = false;
 						break;
 					}
 				}
@@ -193,9 +180,10 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	protected void initDB() {
 		mDb = DB.getWritableDb(this);
 		mDaoSession = DB.getDaoSession(mDb);
-		mAppDisDao = mDaoSession.getTbAppDisDao();
-		mJumpToAppDao = mDaoSession.getTbJumpToAppDao();
-		mAppShortcutDao = mDaoSession.getTbAppShortcutDao();
+		mAppDao = mDaoSession.getTbAppDao();
+		mJumpToAppDao = mDaoSession.getTbJumpDao();
+		mShortcutDao = mDaoSession.getTbShortcutDao();
+		AppPresent.setDao(mAppDao, mJumpToAppDao, mShortcutDao);
 	}
 
 	@Override
@@ -232,9 +220,9 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 
 	protected void saveLocationData(Window window) {
 		if (((SimpleFloatingWindowInt) (this)).isStatus(STATUS_POS_INDEPENDENT)) {
-			mAppDis.setX(window.getLayoutParams().x);
-			mAppDis.setY(window.getLayoutParams().y);
-			mAppDisDao.update(mAppDis);
+			mApp.setX(window.getLayoutParams().x);
+			mApp.setY(window.getLayoutParams().y);
+			mAppDao.update(mApp);
 		} else {
 			mShare.edit().putInt("x", window.getLayoutParams().x).commit();
 			mShare.edit().putInt("y", window.getLayoutParams().y).commit();
@@ -358,74 +346,73 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 				savePopLocationData(window);
 			}
 		} else {
-			gestureDetector.onTouchEvent(event);
-			switch (event.getAction()) {
-			case MotionEvent.ACTION_DOWN:
-				mLastDownTime = System.currentTimeMillis();
-				mLastWindow = window;
-				mLastDownX = window.getLayoutParams().x;
-				mLastDownY = window.getLayoutParams().y;
-				break;
-			case MotionEvent.ACTION_MOVE:
-				break;
-			case MotionEvent.ACTION_UP:
-				mLastWindow = window;
-				saveLocationData(window);
-				break;
+			if (!mIsTempIgnoreTouch) {
+				gestureDetector.onTouchEvent(event);
+				switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+					mLastDownTime = System.currentTimeMillis();
+					mLastWindow = window;
+					mLastDownX = window.getLayoutParams().x;
+					mLastDownY = window.getLayoutParams().y;
+					break;
+				case MotionEvent.ACTION_MOVE:
+					break;
+				case MotionEvent.ACTION_UP:
+					mLastWindow = window;
+					saveLocationData(window);
+					break;
+				}
 			}
 		}
 		return super.onTouchBody(id, window, view, event);
 	}
 
-	private void addPreApp(String pkg, String name) {
+	private void addPreApp(TbApp app) {
+		String pkg = app.getPkg();
+		String name = app.getName();
+
 		if (pkg == null || name == null || pkg.length() == 0
-				|| name.length() == 0) {
+				|| name.length() == 0
+				|| pkg.equals(Util.getLauncherActivityInfo(this).packageName)) {
 			return;
 		}
-		d d = new d(pkg, name);
-		if (mListPreApp.size() == 0) {
-			mListPreApp.add(d);
-			return;
-		} else
-			for (int i = 0; i < mListPreApp.size(); i++) {
-				d temp = mListPreApp.get(i);
-				if (temp.isEqual(d)) {
-					mListPreApp.remove(i);
-					mListPreApp.add(d);
+		final int count = mListPreApp.size();
+		if (count == 0) {
+			mListPreApp.add(app);
+		} else {
+			for (int i = 0; i < count; i++) {
+				TbApp temp = mListPreApp.get(i);
+				if (pkg.equals(temp.getPkg()) && name.equals(temp.getName())) {
+					if (i != count - 1) {
+						mListPreApp.remove(i);
+						mListPreApp.add(temp);
+					}
 					break;
-				} else if (i == mListPreApp.size() - 1) {
-					mListPreApp.add(d);
-					break;
+				} else if (i == count - 1) {
+					mListPreApp.add(app);
 				}
 			}
+		}
 	}
 
 	protected void startPreApp() {
-		boolean isOk = false;
-		if (mListPreApp.size() > 0) {
-			for (int i = mListPreApp.size(); i > -1; i--) {
-				d pre = mListPreApp.get(mListPreApp.size() - 1);
-				if (!pre.isEqual(mTopActivePkg, mTopActiveName)) {
-					isOk = true;
-					startOutSideActivity(pre.getPkg(), pre.getName());
-					break;
-				}
+		boolean isHave = false;
+		for (int i = mListPreApp.size() - 1; i > -1; i--) {
+			TbApp app = mListPreApp.get(i);
+			if (!mTopActivePkg.equals(app.getPkg())) {
+				startOutSideActivity(app);
+				isHave = true;
+				break;
 			}
 		}
-		if (!isOk) {
+		if (!isHave) {
 			toast(R.string.no_history);
 		}
 	}
 
-	protected void startOutSideActivity(TbAppShortcut shortcut) {
+	protected void startOutSideActivity(TbApp shortcut) {
 		startOutSideActivity(shortcut.getPkg(), shortcut.getName(),
 				shortcut.getIsShowInputPicker(), shortcut.getInputMethod());
-	}
-
-	protected void startOutSideActivity(TbJumpToApp jump) {
-		startOutSideActivity(jump.getPkg(), jump.getName(),
-				jump.getIsShowInputPicker(), jump.getInputMethod());
-
 	}
 
 	protected void startOutSideActivity(String pkg, String name) {
@@ -436,8 +423,6 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 
 	private void startOutSideActivity(String pkg, String name,
 			boolean isShowInputMethod, String curInputMethod) {
-
-		addPreApp(this.mTopActivePkg, this.mTopActiveName);
 
 		boolean isHasStarted = false;
 		try {
@@ -485,7 +470,23 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	/*
 	 * need to rewrite
 	 */
-	public void hide() {
+	private void hide2() {
+		if (!isNeedAlwaysShow()) {
+			if (mIsShowNow) {
+				mIsShowNow = false;
+				hide();
+			}
+		}
+	}
+
+	private void show2() {
+		if (!mIsShowNow) {
+			mIsShowNow = true;
+			show();
+		}
+	}
+
+	protected void hide() {
 
 	}
 

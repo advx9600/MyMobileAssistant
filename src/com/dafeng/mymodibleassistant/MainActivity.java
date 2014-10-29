@@ -1,10 +1,8 @@
 package com.dafeng.mymodibleassistant;
 
-import java.util.List;
-
 import com.dafeng.mymodibleassistant.b.b;
 import com.dafeng.mymodibleassistant.dao.DaoSession;
-import com.dafeng.mymodibleassistant.dao.TbAppDisDao;
+import com.dafeng.mymodibleassistant.dao.TbAppDao;
 import com.dafeng.mymodibleassistant.db.DB;
 import com.dafeng.mymodibleassistant.floatwin.SimpleFloatingWindow;
 import com.dafeng.mymodibleassistant.floatwin.SimpleFloatingWindowInt;
@@ -14,7 +12,7 @@ import wei.mark.standout.StandOutWindow;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -36,7 +34,7 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 
 	private SQLiteDatabase mDb;
 	private DaoSession mDaoSession;
-	private TbAppDisDao mAppDisDao;
+	private TbAppDao mAppDao;
 
 	private EditText mTextFloatWinSize;
 
@@ -71,10 +69,13 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.container, mFragmentOne).commit();
 		}
-
-		reOpenFloatWin();
-
+		if (!isAlreadOpenFlaotWin()) {
+			reOpenFloatWin();
+		}
 		if (this.getIntent().getBooleanExtra(EXTR_AUTO_BOOT, false)) {
+			if (!isAlreadOpenFlaotWin()) {
+				reOpenFloatWin();
+			}
 			finish();
 			return;
 		}
@@ -95,7 +96,7 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 	private void initDB() {
 		mDb = DB.getWritableDb(this);
 		mDaoSession = DB.getDaoSession(mDb);
-		mAppDisDao = mDaoSession.getTbAppDisDao();
+		mAppDao = mDaoSession.getTbAppDao();
 	}
 
 	@Override
@@ -151,7 +152,7 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 	}
 
 	public void homePageDispaly(View v) {
-		if (AppPresent.setHomePageDisplay(this, mAppDisDao)) {
+		if (AppPresent.setHomePageDisplay(this, mAppDao)) {
 			Toast.makeText(this, R.string.already_show_homepage,
 					Toast.LENGTH_LONG).show();
 		}
@@ -178,24 +179,16 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 	}
 
 	public void btnTest(View v) {
-		// String pkg = "com.android.contacts";
-		// String name = "com.android.contacts.activities.PeopleActivity";
-		// Intent intent = new Intent();
-		// intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		// intent.setComponent(new ComponentName(pkg, name));
-		// this.startActivity(intent);
-		ActivityManager am = (ActivityManager) this
-				.getSystemService(ACTIVITY_SERVICE);
-		List<ActivityManager.RunningTaskInfo> taskInfo = am
-				.getRunningTasks(100);
-		String pkg = "com.android.contacts";
-		for (int i = 0; i < taskInfo.size(); i++) {
-			ActivityManager.RunningTaskInfo info = taskInfo.get(i);
-			if (pkg.equals(info.topActivity.getPackageName())) {
-				am.moveTaskToFront(info.id, ActivityManager.MOVE_TASK_WITH_HOME);
-				return;
-			}
+//		isAlreadOpenFlaotWin();
+	}
+
+	private boolean isAlreadOpenFlaotWin() {
+		Intent intent = StandOutWindow.getShowIntent(this,
+				SimpleFloatingWindow.class, SimpleFloatingWindow.MY_DEFAULT_ID);
+		if (intent.getAction().equals(StandOutWindow.ACTION_SHOW)) {
+			return false;
 		}
+		return true;
 	}
 
 	@Override

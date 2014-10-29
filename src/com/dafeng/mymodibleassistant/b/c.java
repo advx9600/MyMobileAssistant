@@ -21,11 +21,10 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.dafeng.mymodibleassistant.R;
-import com.dafeng.mymodibleassistant.dao.TbAppDis;
-import com.dafeng.mymodibleassistant.dao.TbAppShortcut;
-import com.dafeng.mymodibleassistant.dao.TbJumpToApp;
+import com.dafeng.mymodibleassistant.dao.TbApp;
 import com.dafeng.mymodibleassistant.floatwin.SimpleFloatingWindow;
 import com.dafeng.mymodibleassistant.floatwin.SimpleFloatingWindowInt;
+import com.dafeng.mymodibleassistant.present.AppPresent;
 import com.dafeng.mymodibleassistant.util.Util;
 
 public class c {
@@ -47,7 +46,7 @@ public class c {
 		}
 	}
 
-	public static void a(Window window, TbAppDis mAppDis) {
+	public static void a(Window window, TbApp mAppDis) {
 		if (window != null) {
 			window.edit().setPosition(mAppDis.getX(), mAppDis.getY());
 			window.edit().commit();
@@ -60,19 +59,20 @@ public class c {
 		window.edit().commit();
 	}
 
-	public static void d(List<TbJumpToApp> mListTbJump, LinearLayout lay,
-			final Context con, final LayoutInflater inflater, View v) {
+	public static void d(final long curAppId, List<TbApp> mListTbJump,
+			LinearLayout lay, final Context con, final LayoutInflater inflater,
+			View v) {
 
 		final SimpleFloatingWindowInt floatWinInt = ((SimpleFloatingWindowInt) con);
 		if (mListTbJump != null && mListTbJump.size() > 0) {
 			for (int i = 0; i < mListTbJump.size(); i++) {
-				final TbJumpToApp jump = mListTbJump.get(i);
-				final long id = jump.getId();
+				final TbApp app = mListTbJump.get(i);
+				final long id = app.getId();
+				final long tbJumpId = AppPresent.getTbJumpId(curAppId, id);
 				ImageButton btnJump = new ImageButton(lay.getContext());
 				// btnJump.setBackgroundDrawable(background);
 				btnJump.setBackgroundColor(Color.TRANSPARENT);
-				btnJump.setImageDrawable(Util.getIconByAppPkg(con,
-						jump.getPkg()));
+				btnJump.setImageDrawable(Util.getIconByAppPkg(con, app.getPkg()));
 				lay.addView(btnJump);
 				btnJump.setOnClickListener(new OnClickListener() {
 
@@ -92,7 +92,7 @@ public class c {
 								new Runnable() {
 									@Override
 									public void run() {
-										floatWinInt.setOpsId(id);
+										floatWinInt.setOpsId(tbJumpId);
 										floatWinInt
 												.setStatus(SimpleFloatingWindow.STATUS_MOD_JUMP_APP_SHORTCUT);
 									}
@@ -102,12 +102,12 @@ public class c {
 								con.getString(R.string.del), new Runnable() {
 									@Override
 									public void run() {
-										floatWinInt.setOpsId(id);
+										floatWinInt.setOpsId(tbJumpId);
 										floatWinInt
 												.setStatus(SimpleFloatingWindow.STATUS_DEL_JUMP_APP_SHORTCUT);
 									}
 								}));
-						if (jump.getIsShowInputPicker())
+						if (app.getIsShowInputPicker())
 							items.add(new DropDownListItem(
 									android.R.drawable.ic_menu_close_clear_cancel,
 									con.getString(R.string.cancel_input_mehtod),
@@ -116,7 +116,7 @@ public class c {
 										public void run() {
 											floatWinInt.setOpsId(id);
 											floatWinInt
-													.setStatus(SimpleFloatingWindow.STATUS_CANCEL_JUMP_APP_INPUTMETHOD);
+													.setStatus(SimpleFloatingWindow.STATUS_CANCEL_APP_INPUTMETHOD);
 										}
 									}));
 						else
@@ -128,7 +128,7 @@ public class c {
 										public void run() {
 											floatWinInt.setOpsId(id);
 											floatWinInt
-													.setStatus(SimpleFloatingWindow.STATUS_ADD_JUMP_APP_INPUTMETHOD);
+													.setStatus(SimpleFloatingWindow.STATUS_ADD_APP_INPUTMETHOD);
 										}
 									}));
 
@@ -170,12 +170,13 @@ public class c {
 	}
 
 	public static void e(final Context con, final LayoutInflater inflater,
-			LinearLayout layShortcut, List<TbAppShortcut> mListAppshortcut) {
+			LinearLayout layShortcut, List<TbApp> mListAppshortcut) {
 		final SimpleFloatingWindowInt floatWinInt = ((SimpleFloatingWindowInt) con);
 		if (mListAppshortcut != null && mListAppshortcut.size() > 0) {
 			for (int i = 0; i < mListAppshortcut.size(); i++) {
-				final TbAppShortcut shortcut = mListAppshortcut.get(i);
+				final TbApp shortcut = mListAppshortcut.get(i);
 				final long id = shortcut.getId();
+				final long tbShortcutId = AppPresent.getTbShortcutIdByAppId(id);
 				ImageButton btnShortcut = new ImageButton(
 						layShortcut.getContext());
 				btnShortcut.setImageDrawable(Util.getIconByAppPkg(con,
@@ -210,7 +211,7 @@ public class c {
 								new Runnable() {
 									@Override
 									public void run() {
-										floatWinInt.setOpsId(id);
+										floatWinInt.setOpsId(tbShortcutId);
 										floatWinInt
 												.setStatus(SimpleFloatingWindow.STATUS_MOD_APP_SHORTCUT);
 									}
@@ -220,7 +221,7 @@ public class c {
 								con.getString(R.string.del), new Runnable() {
 									@Override
 									public void run() {
-										floatWinInt.setOpsId(id);
+										floatWinInt.setOpsId(tbShortcutId);
 										floatWinInt
 												.setStatus(SimpleFloatingWindow.STATUS_DEL_APP_SHORTCUT);
 									}
@@ -234,7 +235,7 @@ public class c {
 										public void run() {
 											floatWinInt.setOpsId(id);
 											floatWinInt
-													.setStatus(SimpleFloatingWindow.STATUS_CANCEL_APP_SHORTCUT_INPUTMETHOD);
+													.setStatus(SimpleFloatingWindow.STATUS_CANCEL_APP_INPUTMETHOD);
 										}
 									}));
 						else
@@ -246,7 +247,7 @@ public class c {
 										public void run() {
 											floatWinInt.setOpsId(id);
 											floatWinInt
-													.setStatus(SimpleFloatingWindow.STATUS_ADD_APP_SHORTCUT_INPUTMETHOD);
+													.setStatus(SimpleFloatingWindow.STATUS_ADD_APP_INPUTMETHOD);
 										}
 									}));
 
