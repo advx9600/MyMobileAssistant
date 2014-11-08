@@ -292,14 +292,14 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 			if (durTime > 350)
 				return false;
 
-			float xDis = e1.getX() - e2.getX();
-			float yDis = e1.getY() - e2.getY();
-			float rate = xDis / yDis;
-			// a.b("xDis:" + xDis + ",yDis:" + yDis + ",rate:" + rate);
+			int xDis = mLastDownX - mLastWindow.getLayoutParams().x;
+			int yDis = mLastDownY - mLastWindow.getLayoutParams().y;
+			int rate = xDis / (yDis == 0 ? 1 : yDis);
+//			a.b("xDis:" + xDis + ",yDis:" + yDis + ",rate:" + rate);
 			boolean isFlipOk = false;
 			if (Math.abs(rate) > 1) {
 				isFlipOk = true;
-				if (rate > 0) {
+				if (xDis > 0) {
 					a.c("onLeftFlip");
 					((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
 							.onLeftFlip();
@@ -310,7 +310,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 				}
 			} else {
 				isFlipOk = true;
-				if (rate > 0) {
+				if (yDis > 0) {
 					a.c("onTopFlip");
 					((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
 							.onTopFlip();
