@@ -54,6 +54,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	public final static long STATUS_MOD_APP_SHORTCUT = (0x1 << 12);
 	public final static long STATUS_ADD_APP_SHORTCUT_INPUTMETHOD = (0x1 << 13);
 	public final static long STATUS_CANCEL_APP_SHORTCUT_INPUTMETHOD = (0x1 << 14);
+	public final static long STATUS_THIS_PAGE_TEMP_HIDE = (0x1 << 15);
 
 	private static List<Long> LIST_ACTION_ALWAY_SHOW;
 
@@ -94,8 +95,6 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	protected List<TbApp> mListAppshortcut;
 
 	public long mStatus = STATUS_NORMAL;
-
-	private boolean mIsShowNow = true;
 
 	private long mLastDownTime = 0;
 
@@ -472,18 +471,12 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	 */
 	private void hide2() {
 		if (!isNeedAlwaysShow()) {
-			if (mIsShowNow) {
-				mIsShowNow = false;
 				hide();
-			}
 		}
 	}
 
 	private void show2() {
-		if (!mIsShowNow) {
-			mIsShowNow = true;
 			show();
-		}
 	}
 
 	protected void hide() {

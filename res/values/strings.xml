@@ -17,6 +17,7 @@
     <string name="this_page_not_show_floatwin">此界面不显示悬浮窗</string>
     <string name="open_add_page_app_please">请打开需要切换到的程序,然后点击OK</string>
     <string name="this_page_set_pos_indepentent">此界面悬浮窗位置独立</string>
+    <string name="this_page_temp_hide">此界面暂时隐藏悬浮窗</string>
     <string name="cancel_page_pos_indepentent">取消悬浮窗位置独立</string>
     <string name="modify">修改</string>
     <string name="del">删除</string>

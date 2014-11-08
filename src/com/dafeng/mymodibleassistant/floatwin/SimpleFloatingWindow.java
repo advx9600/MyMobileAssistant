@@ -72,13 +72,23 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 		}
 	}
 
+	private boolean mIsClosePopWinOnly = false;
+
+	protected void onlyClosePopWin() {
+		mIsClosePopWinOnly = true;
+		closePopWin();
+		mIsClosePopWinOnly = false;
+	}
+
 	@Override
 	public boolean onFocusChange(int id, Window window, boolean focus) {
 		if (id == POP_WIN_ID) {
-			if (!focus) {
-				closePopWin();
-				show();
-				return false;
+			if (!mIsClosePopWinOnly) {
+				if (!focus) {
+					closePopWin();
+					show();
+					return false;
+				}
 			}
 		}
 
@@ -227,6 +237,13 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 							setStatus(STATUS_NOT_SHOW_THIS_PAGE);
 						}
 					}));
+			items.add(new DropDownListItem(android.R.drawable.ic_menu_edit,
+					getString(R.string.this_page_temp_hide), new Runnable() {
+						@Override
+						public void run() {
+							setStatus(STATUS_THIS_PAGE_TEMP_HIDE);
+						}
+					}));
 			if (isStatus(STATUS_POS_INDEPENDENT))
 				items.add(new DropDownListItem(android.R.drawable.ic_menu_edit,
 						getString(R.string.cancel_page_pos_indepentent),
@@ -365,6 +382,9 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 			app.setIsShowInputPicker(false);
 			mAppDao.update(app);
 			reFreshPage();
+			return;
+		} else if (status == STATUS_THIS_PAGE_TEMP_HIDE) {
+			onlyClosePopWin();
 			return;
 		}
 
