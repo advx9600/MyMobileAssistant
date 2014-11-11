@@ -286,40 +286,45 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 				// SWIPE_MIN_DISTANCE = vc.getScaledPagingTouchSlop();
 				SWIPE_THRESHOLD_VELOCITY = vc.getScaledMinimumFlingVelocity();
 			}
+			boolean isFlipOk = false;
+			
 			int durTime = (int) Math.abs(System.currentTimeMillis()
 					- mLastDownTime);
-			if (durTime > 350)
-				return false;
-
-			int xDis = mLastDownX - mLastWindow.getLayoutParams().x;
-			int yDis = mLastDownY - mLastWindow.getLayoutParams().y;
-			int rate = xDis / (yDis == 0 ? 1 : yDis);
-//			a.b("xDis:" + xDis + ",yDis:" + yDis + ",rate:" + rate);
-			boolean isFlipOk = false;
-			if (Math.abs(rate) > 1) {
-				isFlipOk = true;
-				if (xDis > 0) {
-					a.c("onLeftFlip");
-					((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-							.onLeftFlip();
-				} else {
-					a.c("onRightFlip");
-					((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-							.onRightFlip();
-				}
+			if (durTime > 350) {
+				a.c("onSlowFlip");
+				((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+						.onSlowFlip();
+				isFlipOk=true;
 			} else {
-				isFlipOk = true;
-				if (yDis > 0) {
-					a.c("onTopFlip");
-					((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-							.onTopFlip();
+
+				int xDis = mLastDownX - mLastWindow.getLayoutParams().x;
+				int yDis = mLastDownY - mLastWindow.getLayoutParams().y;
+				int rate = xDis / (yDis == 0 ? 1 : yDis);
+				// a.b("xDis:" + xDis + ",yDis:" + yDis + ",rate:" + rate);				
+				if (Math.abs(rate) > 1) {
+					isFlipOk = true;
+					if (xDis > 0) {
+						a.c("onLeftFlip");
+						((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+								.onLeftFlip();
+					} else {
+						a.c("onRightFlip");
+						((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+								.onRightFlip();
+					}
 				} else {
-					a.c("onBottomFlip");
-					((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-							.onBottomFlip();
+					isFlipOk = true;
+					if (yDis > 0) {
+						a.c("onTopFlip");
+						((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+								.onTopFlip();
+					} else {
+						a.c("onBottomFlip");
+						((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+								.onBottomFlip();
+					}
 				}
 			}
-
 			if (isFlipOk) {
 				StandOutLayoutParams params = mLastWindow.getLayoutParams();
 				if (params != null) {
@@ -394,14 +399,18 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 		}
 	}
 
-	protected void startPreApp() {
+	protected void startPreApp(int steps) {
 		boolean isHave = false;
+		int curStep = 0;
 		for (int i = mListPreApp.size() - 1; i > -1; i--) {
 			TbApp app = mListPreApp.get(i);
 			if (!mTopActivePkg.equals(app.getPkg())) {
-				startOutSideActivity(app);
-				isHave = true;
-				break;
+				curStep--;
+				if (curStep == steps) {
+					startOutSideActivity(app);
+					isHave = true;
+					break;
+				}
 			}
 		}
 		if (!isHave) {
@@ -471,12 +480,12 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	 */
 	private void hide2() {
 		if (!isNeedAlwaysShow()) {
-				hide();
+			hide();
 		}
 	}
 
 	private void show2() {
-			show();
+		show();
 	}
 
 	protected void hide() {

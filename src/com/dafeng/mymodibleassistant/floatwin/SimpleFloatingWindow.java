@@ -306,9 +306,12 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 
 	@Override
 	public void onDoubleClick() {
-		startPreApp();
+		startPreApp(-1);
 	}
-
+	@Override
+	public void onSlowFlip(){
+		startPreApp(-2);
+	}
 	@Override
 	public void onLongClick() {
 		// TODO Auto-generated method stub

@@ -16,6 +16,8 @@ public interface SimpleFloatingWindowInt {
 	public void onTopFlip();
 
 	public void onBottomFlip();
+	
+	public void onSlowFlip();
 
 	public void onDoubleClick();
 
