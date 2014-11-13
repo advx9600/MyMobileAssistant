@@ -178,16 +178,20 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 		return null;
 	}
 
+	public Window getMainWindow(){
+		return  getWindow(MY_DEFAULT_ID);
+	}
+	
 	public void show() {
 		Message msg = new Message();
 		msg.what = 2;
 		handle.sendMessageDelayed(msg, 200);
-		mHolderLayout.setVisibility(View.VISIBLE);
+		getMainWindow().setVisibility(View.VISIBLE);
 	}
 
 	public void hide() {
 		mIsTempIgnoreTouch = true;
-		mHolderLayout.setVisibility(View.GONE);
+		getMainWindow().setVisibility(View.GONE);
 	}
 
 	// move the window by dragging the view
