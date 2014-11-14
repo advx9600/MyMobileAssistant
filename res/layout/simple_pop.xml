@@ -6,6 +6,30 @@
     android:orientation="vertical"
     android:padding="5dip" >
 
+    <RelativeLayout
+        android:id="@+id/label"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp" >
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Floating Folder"
+            android:textColor="@color/ics_blue" />
+
+        <ImageView
+            android:id="@+id/window_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_menu_moreoverflow_normal_holo_dark" />
+    </RelativeLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,31 +77,6 @@
             android:onClick="addAppShortcut"
             android:text="@string/add" />
     </com.dafeng.mymodibleassistant.floatwin.MyLinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/label"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:layout_marginTop="20dip" >
-
-        <TextView
-            android:id="@+id/name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Floating Folder"
-            android:textColor="@color/ics_blue" />
-
-        <ImageView
-            android:id="@+id/window_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_menu_moreoverflow_normal_holo_dark" />
-    </RelativeLayout>
 
     <!--
          <ImageView
