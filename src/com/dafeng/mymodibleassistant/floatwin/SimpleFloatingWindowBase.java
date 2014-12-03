@@ -55,6 +55,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	public final static long STATUS_ADD_APP_SHORTCUT_INPUTMETHOD = (0x1 << 13);
 	public final static long STATUS_CANCEL_APP_SHORTCUT_INPUTMETHOD = (0x1 << 14);
 	public final static long STATUS_THIS_PAGE_TEMP_HIDE = (0x1 << 15);
+	public final static long STATUS_SYSTEM_UNINSTALL_APP = (0x1 << 16);
 
 	private static List<Long> LIST_ACTION_ALWAY_SHOW;
 
@@ -69,7 +70,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 		LIST_ACTION_ALWAY_SHOW.add(STATUS_ADD_APP_SHORTCUT_INPUTMETHOD);
 	}
 
-	protected static Handler handle;
+	public static Handler handle;
 
 	protected SharedPreferences mShare;
 
@@ -164,6 +165,15 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 					case 2:
 						mIsTempIgnoreTouch = false;
 						break;
+					case 3: // uninstall package
+						String pkg = (String) msg.obj;
+						TbApp entry = AppPresent.getTbApp(pkg, null);
+						if (entry != null) {
+							((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+									.setOpsId(entry.getId());
+							((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
+									.setStatus(STATUS_SYSTEM_UNINSTALL_APP);
+						}
 					}
 				}
 			};
@@ -174,6 +184,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 		super.onDestroy();
 		if (mDb != null)
 			mDb.close();
+		handle = null;
 	}
 
 	protected void initDB() {
@@ -287,20 +298,20 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 				SWIPE_THRESHOLD_VELOCITY = vc.getScaledMinimumFlingVelocity();
 			}
 			boolean isFlipOk = false;
-			
+
 			int durTime = (int) Math.abs(System.currentTimeMillis()
 					- mLastDownTime);
 			if (durTime > 350) {
 				a.c("onSlowFlip");
 				((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
 						.onSlowFlip();
-				isFlipOk=true;
+				isFlipOk = true;
 			} else {
 
 				int xDis = mLastDownX - mLastWindow.getLayoutParams().x;
 				int yDis = mLastDownY - mLastWindow.getLayoutParams().y;
 				int rate = xDis / (yDis == 0 ? 1 : yDis);
-				// a.b("xDis:" + xDis + ",yDis:" + yDis + ",rate:" + rate);				
+				// a.b("xDis:" + xDis + ",yDis:" + yDis + ",rate:" + rate);
 				if (Math.abs(rate) > 1) {
 					isFlipOk = true;
 					if (xDis > 0) {

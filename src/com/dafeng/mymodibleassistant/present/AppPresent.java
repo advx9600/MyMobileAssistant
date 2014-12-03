@@ -157,6 +157,27 @@ public class AppPresent {
 		c().update(shortcut);
 	}
 
+	public static void uninstallAppId(long id) {
+		// TODO Auto-generated method stub
+		a().deleteByKey(id);
+		List<TbJump> list = b().queryBuilder()
+				.where(TbJumpDao.Properties.JumpId.eq(id)).list();
+		for (int i = 0; i < list.size(); i++) {
+			b().delete(list.get(i));
+		}
+		list = b().queryBuilder().where(TbJumpDao.Properties.JumpId.eq(id))
+				.list();
+		for (int i = 0; i < list.size(); i++) {
+			b().delete(list.get(i));
+		}
+		List<TbShortcut> listShortcut = c().queryBuilder()
+				.where(TbShortcutDao.Properties.AppId.eq(id)).list();
+		for (int i = 0; i < listShortcut.size(); i++) {
+			c().delete(listShortcut.get(i));
+		}
+
+	}
+
 	/*
 	 * 
 	 */

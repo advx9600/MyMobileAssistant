@@ -178,10 +178,10 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 		return null;
 	}
 
-	public Window getMainWindow(){
-		return  getWindow(MY_DEFAULT_ID);
+	public Window getMainWindow() {
+		return getWindow(MY_DEFAULT_ID);
 	}
-	
+
 	public void show() {
 		Message msg = new Message();
 		msg.what = 2;
@@ -312,10 +312,12 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 	public void onDoubleClick() {
 		startPreApp(-1);
 	}
+
 	@Override
-	public void onSlowFlip(){
+	public void onSlowFlip() {
 		startPreApp(-2);
 	}
+
 	@Override
 	public void onLongClick() {
 		// TODO Auto-generated method stub
@@ -392,6 +394,10 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 			return;
 		} else if (status == STATUS_THIS_PAGE_TEMP_HIDE) {
 			onlyClosePopWin();
+			return;
+		} else if (status == STATUS_SYSTEM_UNINSTALL_APP) {
+			AppPresent.uninstallAppId(mStoreId);
+			reFreshPage();
 			return;
 		}
 
