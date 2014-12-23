@@ -395,8 +395,8 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 		} else if (status == STATUS_THIS_PAGE_TEMP_HIDE) {
 			onlyClosePopWin();
 			return;
-		} else if (status == STATUS_SYSTEM_UNINSTALL_APP) {
-			AppPresent.uninstallAppId(mStoreId);
+		} else if (status == STATUS_SYSTEM_PKG_CHANGE) {
+//			AppPresent.uninstallAppId(mStoreId); no need to delete
 			reFreshPage();
 			return;
 		}

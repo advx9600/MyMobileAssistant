@@ -35,9 +35,11 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.dafeng.mymodibleassistant.receiver.UninstallAppReceiver" >
+        <receiver android:name="com.dafeng.mymodibleassistant.receiver.PkgChangeAppReceiver" >
             <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_INSTALL" />
 
                 <data android:scheme="package" />
             </intent-filter>

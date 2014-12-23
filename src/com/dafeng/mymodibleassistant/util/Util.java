@@ -116,6 +116,20 @@ public class Util {
 		return null;
 	}
 
+	/*
+	 * 是否已经安装此包名
+	 */
+	public static boolean isPkgInstalled(Context con, String pkg) {
+		PackageManager pm = con.getPackageManager();
+		try {
+			pm.getPackageInfo(pkg, PackageManager.GET_ACTIVITIES);
+			return true;
+		} catch (NameNotFoundException e) {
+
+		}
+		return false;
+	}
+
 	private static long mStatus = 0;
 
 	public static void setStatusExample(long status) {

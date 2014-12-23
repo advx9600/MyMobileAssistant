@@ -94,14 +94,26 @@ public class AppPresent {
 		return list.get(0);
 	}
 
-	public static List<TbApp> getJumpApps(long curAppId) {
+	private static List<TbApp> removeUninstallItem(Context con, List<TbApp> list) {
+		for (int i = 0; i < list.size(); i++) {
+			if (!Util.isPkgInstalled(con, list.get(i).getPkg())) {
+				list.remove(i);
+				i--;
+			}
+		}
+		return list;
+	}
+
+	public static List<TbApp> getJumpApps(Context con, long curAppId) {
 		List<TbJump> list = b().queryBuilder()
 				.where(TbJumpDao.Properties.AppId.eq(curAppId)).list();
 		List<Long> ids = new ArrayList<>();
 		for (int i = 0; i < list.size(); i++) {
 			ids.add(list.get(i).getJumpId());
 		}
-		return a().queryBuilder().where(Properties.Id.in(ids)).list();
+
+		return removeUninstallItem(con,
+				a().queryBuilder().where(Properties.Id.in(ids)).list());
 	}
 
 	public static long getTbJumpId(long appId, long jumpToAppId) {
@@ -182,13 +194,14 @@ public class AppPresent {
 	 * 
 	 */
 
-	public static List<TbApp> getShortcuts() {
+	public static List<TbApp> getShortcuts(Context con) {
 		List<TbShortcut> list = c().queryBuilder().list();
 		List<Long> ids = new ArrayList<>();
 		for (int i = 0; i < list.size(); i++) {
 			ids.add(list.get(i).getAppId());
 		}
-		return a().queryBuilder().where(Properties.Id.in(ids)).list();
+		return removeUninstallItem(con,
+				a().queryBuilder().where(Properties.Id.in(ids)).list());
 	}
 
 	public static void delJumpApp(long id) {

@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Message;
 
-public class UninstallAppReceiver extends BroadcastReceiver {
+public class PkgChangeAppReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {

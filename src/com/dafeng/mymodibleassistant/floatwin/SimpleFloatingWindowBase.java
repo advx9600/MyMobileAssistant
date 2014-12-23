@@ -55,7 +55,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	public final static long STATUS_ADD_APP_SHORTCUT_INPUTMETHOD = (0x1 << 13);
 	public final static long STATUS_CANCEL_APP_SHORTCUT_INPUTMETHOD = (0x1 << 14);
 	public final static long STATUS_THIS_PAGE_TEMP_HIDE = (0x1 << 15);
-	public final static long STATUS_SYSTEM_UNINSTALL_APP = (0x1 << 16);
+	public final static long STATUS_SYSTEM_PKG_CHANGE = (0x1 << 16);
 
 	private static List<Long> LIST_ACTION_ALWAY_SHOW;
 
@@ -123,9 +123,12 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 								mTopActiveName);
 						mListTbJump = null;
 						if (mApp != null) {
-							mListTbJump = AppPresent.getJumpApps(mApp.getId());
+							mListTbJump = AppPresent
+									.getJumpApps(SimpleFloatingWindowBase.this,
+											mApp.getId());
 						}
-						mListAppshortcut = AppPresent.getShortcuts();
+						mListAppshortcut = AppPresent
+								.getShortcuts(SimpleFloatingWindowBase.this);
 						if (mApp != null) {
 							if (mApp.getIsShow()) {
 								show2();
@@ -172,7 +175,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 							((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
 									.setOpsId(entry.getId());
 							((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-									.setStatus(STATUS_SYSTEM_UNINSTALL_APP);
+									.setStatus(STATUS_SYSTEM_PKG_CHANGE);
 						}
 					}
 				}
@@ -415,7 +418,8 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 		int curStep = 0;
 		for (int i = mListPreApp.size() - 1; i > -1; i--) {
 			TbApp app = mListPreApp.get(i);
-			if (!mTopActivePkg.equals(app.getPkg())) {
+			if (!mTopActivePkg.equals(app.getPkg())
+					&& Util.isPkgInstalled(this, app.getPkg())) {
 				curStep--;
 				if (curStep == steps) {
 					startOutSideActivity(app);
