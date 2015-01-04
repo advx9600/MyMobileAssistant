@@ -44,6 +44,11 @@
         </LinearLayout>
 
         <Button
+            android:text="@string/adjust_click_floatwin_popwin_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="setClickFloatWinPopWinDefSize"/>
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="btnTest"

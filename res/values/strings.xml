@@ -8,6 +8,7 @@
     <string name="float_win_homepage_display">悬浮窗首页显示</string>
     <string name="already_show_homepage">已经在首页中显示</string>
     <string name="adjust_win_size">调整窗口大小</string>
+    <string name="adjust_click_floatwin_popwin_size">调整点击悬浮窗之后弹出窗大小</string>
     <string name="cur_page_jump_shortcuts">当前页面跳转快捷方式</string>
     <string name="add">添加</string>
     <string name="shortcut">快捷方式</string>

@@ -17,6 +17,7 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.os.Message;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -172,10 +173,26 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 				mShare.edit().putInt("pop_y", y).commit();
 				IsPopShowDefault = false;
 			}
-			return new StandOutLayoutParams(id, 400,
-					StandOutLayoutParams.WRAP_CONTENT, x, y);
+			return new StandOutLayoutParams(id, mShare.getInt(
+					SimpleFloatingWindowInt.PREF_floatwin_entry_width, 400),
+					mShare.getInt(
+							SimpleFloatingWindowInt.PREF_floatwin_entry_height,
+							300), x, y);
 		}
 		return null;
+	}
+
+	@Override
+	public void onResize(int id, Window window, View view, MotionEvent event) {
+		StandOutLayoutParams params = window.getLayoutParams();
+		if (event.getAction() == MotionEvent.ACTION_UP && params.width > 100
+				&& params.height > 100) {
+			mShare.edit().putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_width,
+					params.width).commit();
+			mShare.edit().putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_height,
+					params.height).commit();
+			
+		}
 	}
 
 	public Window getMainWindow() {
@@ -396,7 +413,7 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 			onlyClosePopWin();
 			return;
 		} else if (status == STATUS_SYSTEM_PKG_CHANGE) {
-//			AppPresent.uninstallAppId(mStoreId); no need to delete
+			// AppPresent.uninstallAppId(mStoreId); no need to delete
 			reFreshPage();
 			return;
 		}

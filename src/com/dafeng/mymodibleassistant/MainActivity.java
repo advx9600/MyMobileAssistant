@@ -178,8 +178,18 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 		reOpenFloatWin();
 	}
 
+	public void setClickFloatWinPopWinDefSize(View v) {
+		mShare.edit()
+				.putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_height, 400)
+				.commit();
+		mShare.edit()
+				.putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_width, 300)
+				.commit();
+		reOpenFloatWin();
+	}
+
 	public void btnTest(View v) {
-//		isAlreadOpenFlaotWin();
+		// isAlreadOpenFlaotWin();
 	}
 
 	private boolean isAlreadOpenFlaotWin() {
