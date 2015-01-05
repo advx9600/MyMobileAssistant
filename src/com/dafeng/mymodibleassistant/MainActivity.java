@@ -18,6 +18,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +38,9 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 	private TbAppDao mAppDao;
 
 	private EditText mTextFloatWinSize;
+	
+	private EditText mTextPopWinWidth;
+	private EditText mTextPopWinHeight;
 
 	private SharedPreferences mShare;
 
@@ -135,11 +139,14 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 
 			mTextFloatWinSize = (EditText) rootView
 					.findViewById(R.id.text_float_size);
+			mTextPopWinWidth = (EditText) rootView.findViewById(R.id.et_width);
+			mTextPopWinHeight = (EditText) rootView.findViewById(R.id.et_height);
 			mTextFloatWinSize.setText(mShare.getInt(
 					SimpleFloatingWindowInt.PREF_floatwin_width,
 					b.getProperWidth())
 					+ "");
-
+			mTextPopWinWidth.setText(getPopWidth()+"");
+			mTextPopWinHeight.setText(getPopHeight()+"");
 			return rootView;
 		}
 
@@ -165,8 +172,8 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 			return;
 		}
 		int value = Integer.parseInt(valStr);
-		if (value < 30 || value > 200) {
-			toast(getString(R.string.max_min_value_exceed, 200, 30));
+		if (value < 10 || value > 200) {
+			toast(getString(R.string.max_min_value_exceed, 200, 10));
 			return;
 		}
 		mShare.edit()
@@ -179,15 +186,47 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 	}
 
 	public void setClickFloatWinPopWinDefSize(View v) {
-		mShare.edit()
-				.putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_height, 400)
-				.commit();
-		mShare.edit()
-				.putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_width, 300)
-				.commit();
+		DisplayMetrics displaymetrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+		int maxHeight = displaymetrics.heightPixels;
+		int maxWidth = displaymetrics.widthPixels;
+		String width = mTextPopWinWidth.getText().toString();
+		String height = mTextPopWinHeight.getText().toString();
+		if (width==null || width.length()==0 || height==null || height.length()==0){		
+			toast(R.string.not_null);
+			return;
+		}
+		int widthN=Integer.parseInt(width);
+		int heightN = Integer.parseInt(height);
+		if (widthN<30 || widthN>maxWidth){			
+			toast(getString(R.string.width)+" "+getString(R.string.max_min_value_exceed, maxWidth, 30));
+			return ;
+		}
+		if (heightN <30 || heightN>maxHeight){
+			toast(getString(R.string.height)+" "+getString(R.string.max_min_value_exceed, maxHeight, 30));
+			return ;
+		}
+		setPopWidth(widthN);
+		setPopHeight(heightN);
 		reOpenFloatWin();
 	}
+	private int getPopWidth(){
+		return mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_entry_width, 400);
+	}
 
+	private int getPopHeight(){
+		return mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_entry_height, 300);
+	}
+	private void setPopWidth(int width){
+		mShare.edit()
+		.putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_width, width)
+		.commit();
+	}
+	private void setPopHeight(int height){
+		mShare.edit()
+		.putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_height, height)
+		.commit();
+	}
 	public void btnTest(View v) {
 		// isAlreadOpenFlaotWin();
 	}

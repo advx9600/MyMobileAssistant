@@ -7,7 +7,7 @@
     <string name="float_win_center_display">悬浮窗居中显示</string>
     <string name="float_win_homepage_display">悬浮窗首页显示</string>
     <string name="already_show_homepage">已经在首页中显示</string>
-    <string name="adjust_win_size">调整窗口大小</string>
+    <string name="adjust_win_size">调整窗口半径</string>
     <string name="adjust_click_floatwin_popwin_size">调整点击悬浮窗之后弹出窗大小</string>
     <string name="cur_page_jump_shortcuts">当前页面跳转快捷方式</string>
     <string name="add">添加</string>
@@ -27,5 +27,7 @@
     <string name="already_cancel">已经取消</string>
     <string name="class_name_not_null">请选择程序(不能为桌面,此程序只是插件),类名不能为空</string>
     <string name="no_history">没有历史记录</string>
+    <string name="width">宽度</string>
+    <string name="height">高度</string>
 
 </resources>
