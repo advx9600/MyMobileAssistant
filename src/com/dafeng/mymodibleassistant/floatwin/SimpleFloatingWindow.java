@@ -34,6 +34,7 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 
 	class ThreadCheck extends Thread {
 		public void run() {
+			mTopActivePkg="";
 			while (!mIsQuit) {
 				try {
 					Thread.sleep(500);
@@ -136,6 +137,7 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 			mHolderLayout = (FrameLayout) inflater.inflate(R.layout.simple,
 					frame, true);
 			mFloatImg = (ImageView) mHolderLayout.findViewById(R.id.float_img);
+			mFloatImg.setAlpha(mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_alpha, 255));
 			new ThreadCheck().start();
 			mListPreApp.clear();
 		}

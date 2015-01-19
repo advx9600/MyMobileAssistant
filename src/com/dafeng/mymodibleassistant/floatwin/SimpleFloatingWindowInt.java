@@ -6,6 +6,7 @@ public interface SimpleFloatingWindowInt {
 	public static final String PREF_floatwin_height = "float_height";
 	public static final String PREF_floatwin_entry_width="float_entry_width";
 	public static final String PREF_floatwin_entry_height="float_entry_height";
+	public static final String PREF_floatwin_alpha="float_alpha";
 
 	public void onClick();
 

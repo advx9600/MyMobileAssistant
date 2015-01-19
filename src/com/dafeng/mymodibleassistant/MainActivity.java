@@ -41,6 +41,7 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 	
 	private EditText mTextPopWinWidth;
 	private EditText mTextPopWinHeight;
+	private EditText mTextPopWinAlpha;
 
 	private SharedPreferences mShare;
 
@@ -141,12 +142,14 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 					.findViewById(R.id.text_float_size);
 			mTextPopWinWidth = (EditText) rootView.findViewById(R.id.et_width);
 			mTextPopWinHeight = (EditText) rootView.findViewById(R.id.et_height);
+			mTextPopWinAlpha = (EditText) rootView.findViewById(R.id.et_alpha);
 			mTextFloatWinSize.setText(mShare.getInt(
 					SimpleFloatingWindowInt.PREF_floatwin_width,
 					b.getProperWidth())
 					+ "");
 			mTextPopWinWidth.setText(getPopWidth()+"");
 			mTextPopWinHeight.setText(getPopHeight()+"");
+			mTextPopWinAlpha.setText(getPopAlphy()+"");
 			return rootView;
 		}
 
@@ -210,12 +213,29 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 		setPopHeight(heightN);
 		reOpenFloatWin();
 	}
+	public void setFloatwinAlphy(View v){
+		String alpha = mTextPopWinAlpha.getText().toString();
+		if (alpha == null || alpha.length() ==0){
+			toast(R.string.not_null);
+			return ;
+		}
+		int alphaNum = Integer.parseInt(alpha);
+		if (alphaNum < 5 || alphaNum >255){
+			toast(getString(R.string.max_min_value_exceed, 255, 5));
+			return ;
+		}
+		setFloatAlphy(alphaNum);
+		reOpenFloatWin();
+	}
 	private int getPopWidth(){
 		return mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_entry_width, 400);
 	}
 
 	private int getPopHeight(){
 		return mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_entry_height, 300);
+	}
+	private int getPopAlphy(){
+		return mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_alpha, 255);
 	}
 	private void setPopWidth(int width){
 		mShare.edit()
@@ -225,6 +245,11 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 	private void setPopHeight(int height){
 		mShare.edit()
 		.putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_height, height)
+		.commit();
+	}
+	private void setFloatAlphy(int alpha){
+		mShare.edit()
+		.putInt(SimpleFloatingWindowInt.PREF_floatwin_alpha, alpha)
 		.commit();
 	}
 	public void btnTest(View v) {

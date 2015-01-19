@@ -29,5 +29,5 @@
     <string name="no_history">没有历史记录</string>
     <string name="width">宽度</string>
     <string name="height">高度</string>
-
+	<string name="set_alphy">设置透明度</string>
 </resources>
