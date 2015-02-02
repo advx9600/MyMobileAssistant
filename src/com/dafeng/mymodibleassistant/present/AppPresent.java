@@ -3,6 +3,7 @@ package com.dafeng.mymodibleassistant.present;
 import java.util.ArrayList;
 import java.util.List;
 
+import wei.mark.standout.a;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 
@@ -107,13 +108,12 @@ public class AppPresent {
 	public static List<TbApp> getJumpApps(Context con, long curAppId) {
 		List<TbJump> list = b().queryBuilder()
 				.where(TbJumpDao.Properties.AppId.eq(curAppId)).list();
-		List<Long> ids = new ArrayList<>();
+		List<TbApp> apps = new ArrayList<>();
 		for (int i = 0; i < list.size(); i++) {
-			ids.add(list.get(i).getJumpId());
+			apps.add(a().queryBuilder().where(Properties.Id.eq(list.get(i).getJumpId())).unique());
 		}
 
-		return removeUninstallItem(con,
-				a().queryBuilder().where(Properties.Id.in(ids)).list());
+		return removeUninstallItem(con,apps);
 	}
 
 	public static long getTbJumpId(long appId, long jumpToAppId) {
