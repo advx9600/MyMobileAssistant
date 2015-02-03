@@ -484,6 +484,13 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 				InputMethodManager imeManager = (InputMethodManager) getApplicationContext()
 						.getSystemService(INPUT_METHOD_SERVICE);
 				if (imeManager != null) {
+					try {	
+						if (android.os.Build.BRAND.startsWith("Xiaomi")) // 小米手机
+							Thread.sleep(200);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					imeManager.showInputMethodPicker();
 				}
 			}

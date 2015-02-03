@@ -4,6 +4,7 @@ import com.dafeng.mymodibleassistant.b.b;
 import com.dafeng.mymodibleassistant.dao.DaoSession;
 import com.dafeng.mymodibleassistant.dao.TbAppDao;
 import com.dafeng.mymodibleassistant.db.DB;
+import com.dafeng.mymodibleassistant.defparam.FloatParam;
 import com.dafeng.mymodibleassistant.floatwin.SimpleFloatingWindow;
 import com.dafeng.mymodibleassistant.floatwin.SimpleFloatingWindowInt;
 import com.dafeng.mymodibleassistant.present.AppPresent;
@@ -235,7 +236,7 @@ public class MainActivity extends ActionBarActivity implements MainActivityInt {
 		return mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_entry_height, 300);
 	}
 	private int getPopAlphy(){
-		return mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_alpha, 255);
+		return mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_alpha, FloatParam.defAply);
 	}
 	private void setPopWidth(int width){
 		mShare.edit()

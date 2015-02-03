@@ -7,6 +7,7 @@ import com.dafeng.mymodibleassistant.R;
 import com.dafeng.mymodibleassistant.a;
 import com.dafeng.mymodibleassistant.b.c;
 import com.dafeng.mymodibleassistant.dao.TbApp;
+import com.dafeng.mymodibleassistant.defparam.FloatParam;
 import com.dafeng.mymodibleassistant.present.AppPresent;
 import com.dafeng.mymodibleassistant.util.Util;
 
@@ -137,7 +138,7 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 			mHolderLayout = (FrameLayout) inflater.inflate(R.layout.simple,
 					frame, true);
 			mFloatImg = (ImageView) mHolderLayout.findViewById(R.id.float_img);
-			mFloatImg.setAlpha(mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_alpha, 255));
+			mFloatImg.setAlpha(mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_alpha, FloatParam.defAply));
 			new ThreadCheck().start();
 			mListPreApp.clear();
 		}
