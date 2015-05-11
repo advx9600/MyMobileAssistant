@@ -6,6 +6,6 @@ public class a {
 	}
 
 	public static void c(String msg) {
-		android.util.Log.i("aaaa", "aaaa " + msg);
+		android.util.Log.i("MyMobileAssistant", "aaaa::" + msg);
 	}
 }

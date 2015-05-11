@@ -5,7 +5,7 @@ MyModibleAssistant
 快速左右划动=第二个<br/>
 快速上下划动=第三个<br/>
 双击=返回前一个<br/>
-缓慢滑动=退两步<br/>
+3击=退两步<br/>
 ## 编译
 需要https://github.com/advx9600/AppGenDb(在我自己目录下)生成相应文件和 StandOut 库
 

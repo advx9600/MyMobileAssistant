@@ -1,5 +1,7 @@
 package com.dafeng.mymodibleassistant.floatwin;
 
+import wei.mark.standout.ui.Window;
+
 public interface SimpleFloatingWindowInt {
 	public static final String PREF_FILE_NAME = "SimpleFloatingWindow";
 	public static final String PREF_floatwin_width = "float_width";
@@ -19,11 +21,10 @@ public interface SimpleFloatingWindowInt {
 	public void onTopFlip();
 
 	public void onBottomFlip();
-	
-	public void onSlowFlip();
 
 	public void onDoubleClick();
 
+	public void onThreeClick();
 	// public void on45DegreenFlip(); // 不准确
 
 	public void setStatus(long status);
@@ -31,4 +32,9 @@ public interface SimpleFloatingWindowInt {
 	public boolean isStatus(long status);
 
 	public void setOpsId(long id);
+	
+	// base 类中实现的方法
+	public wei.mark.standout.ui.Window getFloatWindow();
+	
+	public void saveLocationData(Window window);
 }

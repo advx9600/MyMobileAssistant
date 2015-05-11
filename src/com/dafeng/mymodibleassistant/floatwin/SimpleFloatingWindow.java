@@ -35,7 +35,7 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 
 	class ThreadCheck extends Thread {
 		public void run() {
-			mTopActivePkg="";
+			mTopActivePkg = "";
 			while (!mIsQuit) {
 				try {
 					Thread.sleep(500);
@@ -138,7 +138,9 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 			mHolderLayout = (FrameLayout) inflater.inflate(R.layout.simple,
 					frame, true);
 			mFloatImg = (ImageView) mHolderLayout.findViewById(R.id.float_img);
-			mFloatImg.setAlpha(mShare.getInt(SimpleFloatingWindowInt.PREF_floatwin_alpha, FloatParam.defAply));
+			mFloatImg.setAlpha(mShare.getInt(
+					SimpleFloatingWindowInt.PREF_floatwin_alpha,
+					FloatParam.defAply));
 			new ThreadCheck().start();
 			mListPreApp.clear();
 		}
@@ -190,11 +192,13 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 		StandOutLayoutParams params = window.getLayoutParams();
 		if (event.getAction() == MotionEvent.ACTION_UP && params.width > 100
 				&& params.height > 100) {
-			mShare.edit().putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_width,
-					params.width).commit();
-			mShare.edit().putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_height,
-					params.height).commit();
-			
+			mShare.edit()
+					.putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_width,
+							params.width).commit();
+			mShare.edit()
+					.putInt(SimpleFloatingWindowInt.PREF_floatwin_entry_height,
+							params.height).commit();
+
 		}
 	}
 
@@ -334,7 +338,8 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 	}
 
 	@Override
-	public void onSlowFlip() {
+	public void onThreeClick() {
+		// TODO Auto-generated method stub
 		startPreApp(-2);
 	}
 
@@ -509,4 +514,5 @@ public class SimpleFloatingWindow extends SimpleFloatingWindowBase implements
 		// TODO Auto-generated method stub
 		this.mStoreId = id;
 	}
+
 }

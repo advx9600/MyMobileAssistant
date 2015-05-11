@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dafeng.mymodibleassistant.R;
-import com.dafeng.mymodibleassistant.a;
 import com.dafeng.mymodibleassistant.b.c;
 import com.dafeng.mymodibleassistant.dao.DaoSession;
 import com.dafeng.mymodibleassistant.dao.TbApp;
@@ -12,6 +11,7 @@ import com.dafeng.mymodibleassistant.dao.TbAppDao;
 import com.dafeng.mymodibleassistant.dao.TbJumpDao;
 import com.dafeng.mymodibleassistant.dao.TbShortcutDao;
 import com.dafeng.mymodibleassistant.db.DB;
+import com.dafeng.mymodibleassistant.floatwin.listener.MySimpleOnGestureListener;
 import com.dafeng.mymodibleassistant.present.AppPresent;
 import com.dafeng.mymodibleassistant.util.Util;
 
@@ -27,12 +27,12 @@ import android.os.Message;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 import wei.mark.standout.StandOutWindow;
+import wei.mark.standout.a;
 import wei.mark.standout.ui.Window;
 
 public class SimpleFloatingWindowBase extends StandOutWindow {
@@ -75,8 +75,6 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	protected SharedPreferences mShare;
 
 	protected static Window mLastWindow;
-	protected static int mLastDownX;
-	protected static int mLastDownY;
 
 	protected boolean mIsQuit = false; // only for MY_DEFAULT_ID
 
@@ -96,8 +94,6 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	protected List<TbApp> mListAppshortcut;
 
 	public long mStatus = STATUS_NORMAL;
-
-	private long mLastDownTime = 0;
 
 	protected boolean mIsTempIgnoreTouch = false;
 
@@ -231,8 +227,10 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 		mShare.edit().putInt("pop_y", window.getLayoutParams().y).commit();
 	}
 
-	protected void saveLocationData(Window window) {
+	public void saveLocationData(Window window) {
 		if (((SimpleFloatingWindowInt) (this)).isStatus(STATUS_POS_INDEPENDENT)) {
+			a.b("x:" + window.getLayoutParams().x + ",y:"
+					+ window.getLayoutParams().y);
 			mApp.setX(window.getLayoutParams().x);
 			mApp.setY(window.getLayoutParams().y);
 			mAppDao.update(mApp);
@@ -264,96 +262,8 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 
 	@SuppressWarnings("deprecation")
 	final GestureDetector gestureDetector = new GestureDetector(
-
-	new GestureDetector.SimpleOnGestureListener() {
-		// private int SWIPE_MIN_DISTANCE = 0;
-		private int SWIPE_THRESHOLD_VELOCITY = 0;
-
-		@Override
-		public void onLongPress(MotionEvent e) {
-			a.c("onLongClick");
-			((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-					.onLongClick();
-		}
-
-		@Override
-		public boolean onDoubleTap(MotionEvent e) {
-			a.c("onDoubleTap");
-			((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-					.onDoubleClick();
-			return false;
-		}
-
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-					.onClick();
-			a.c("onClick");
-			return false;
-		}
-
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
-			if (SWIPE_THRESHOLD_VELOCITY < 1) {
-				final ViewConfiguration vc = ViewConfiguration
-						.get(SimpleFloatingWindowBase.this);
-				// SWIPE_MIN_DISTANCE = vc.getScaledPagingTouchSlop();
-				SWIPE_THRESHOLD_VELOCITY = vc.getScaledMinimumFlingVelocity();
-			}
-			boolean isFlipOk = false;
-
-			int durTime = (int) Math.abs(System.currentTimeMillis()
-					- mLastDownTime);
-			if (durTime > 350) {
-				a.c("onSlowFlip");
-				((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-						.onSlowFlip();
-				isFlipOk = true;
-			} else {
-
-				int xDis = mLastDownX - mLastWindow.getLayoutParams().x;
-				int yDis = mLastDownY - mLastWindow.getLayoutParams().y;
-				int rate = xDis / (yDis == 0 ? 1 : yDis);
-				// a.b("xDis:" + xDis + ",yDis:" + yDis + ",rate:" + rate);
-				if (Math.abs(rate) > 1) {
-					isFlipOk = true;
-					if (xDis > 0) {
-						a.c("onLeftFlip");
-						((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-								.onLeftFlip();
-					} else {
-						a.c("onRightFlip");
-						((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-								.onRightFlip();
-					}
-				} else {
-					isFlipOk = true;
-					if (yDis > 0) {
-						a.c("onTopFlip");
-						((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-								.onTopFlip();
-					} else {
-						a.c("onBottomFlip");
-						((SimpleFloatingWindowInt) (SimpleFloatingWindowBase.this))
-								.onBottomFlip();
-					}
-				}
-			}
-			if (isFlipOk) {
-				StandOutLayoutParams params = mLastWindow.getLayoutParams();
-				if (params != null) {
-					params.x = mLastDownX;
-					params.y = mLastDownY;
-					mLastWindow.setLayoutParams(params);
-					mLastWindow.edit().commit();
-
-					saveLocationData(mLastWindow);
-				}
-			}
-
-			return false;
-		}
-	});
+			new MySimpleOnGestureListener(
+					(SimpleFloatingWindowInt) SimpleFloatingWindowBase.this));
 
 	@Override
 	public boolean onTouchBody(int id, Window window, View view,
@@ -365,21 +275,14 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 			}
 		} else {
 			if (!mIsTempIgnoreTouch) {
+				mLastWindow = window;
 				gestureDetector.onTouchEvent(event);
 				switch (event.getAction()) {
-				case MotionEvent.ACTION_DOWN:
-					mLastDownTime = System.currentTimeMillis();
-					mLastWindow = window;
-					mLastDownX = window.getLayoutParams().x;
-					mLastDownY = window.getLayoutParams().y;
-					break;
-				case MotionEvent.ACTION_MOVE:
-					break;
 				case MotionEvent.ACTION_UP:
-					mLastWindow = window;
-					saveLocationData(window);
+					saveLocationData(mLastWindow);
 					break;
 				}
+
 			}
 		}
 		return super.onTouchBody(id, window, view, event);
@@ -484,7 +387,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 				InputMethodManager imeManager = (InputMethodManager) getApplicationContext()
 						.getSystemService(INPUT_METHOD_SERVICE);
 				if (imeManager != null) {
-					try {	
+					try {
 						if (android.os.Build.BRAND.startsWith("Xiaomi")) // 小米手机
 							Thread.sleep(200);
 					} catch (InterruptedException e) {
@@ -519,5 +422,10 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	}
 
 	public void setStatus(long status, boolean isHaveOthers) {
+	}
+
+	public Window getFloatWindow() {
+		// TODO Auto-generated method stub
+		return mLastWindow;
 	}
 }
