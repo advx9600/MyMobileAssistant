@@ -2,10 +2,8 @@ package com.dafeng.mymodibleassistant.util;
 
 import java.util.List;
 
-import com.dafeng.mymodibleassistant.a;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -16,8 +14,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.provider.Settings;
-import android.view.inputmethod.InputMethodInfo;
-import android.view.inputmethod.InputMethodManager;
 
 public class Util {
 

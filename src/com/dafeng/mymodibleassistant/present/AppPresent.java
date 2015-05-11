@@ -3,7 +3,6 @@ package com.dafeng.mymodibleassistant.present;
 import java.util.ArrayList;
 import java.util.List;
 
-import wei.mark.standout.a;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 

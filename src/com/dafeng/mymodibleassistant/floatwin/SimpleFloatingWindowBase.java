@@ -12,6 +12,7 @@ import com.dafeng.mymodibleassistant.dao.TbJumpDao;
 import com.dafeng.mymodibleassistant.dao.TbShortcutDao;
 import com.dafeng.mymodibleassistant.db.DB;
 import com.dafeng.mymodibleassistant.floatwin.listener.MySimpleOnGestureListener;
+import com.dafeng.mymodibleassistant.floatwin.listener.MySimpleOnGestureListener2;
 import com.dafeng.mymodibleassistant.present.AppPresent;
 import com.dafeng.mymodibleassistant.util.Util;
 
@@ -264,10 +265,12 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 	final GestureDetector gestureDetector = new GestureDetector(
 			new MySimpleOnGestureListener(
 					(SimpleFloatingWindowInt) SimpleFloatingWindowBase.this));
+	final MySimpleOnGestureListener2 gestureDetector2 = new MySimpleOnGestureListener2(
+			(SimpleFloatingWindowInt) SimpleFloatingWindowBase.this);
 
 	@Override
 	public boolean onTouchBody(int id, Window window, View view,
-			MotionEvent event) {
+			MotionEvent event) {		
 		if (id == POP_WIN_ID) {
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_UP:
@@ -276,12 +279,13 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 		} else {
 			if (!mIsTempIgnoreTouch) {
 				mLastWindow = window;
-				gestureDetector.onTouchEvent(event);
-				switch (event.getAction()) {
-				case MotionEvent.ACTION_UP:
-					saveLocationData(mLastWindow);
-					break;
-				}
+				// gestureDetector.onTouchEvent(event);
+				// switch (event.getAction()) {
+				// case MotionEvent.ACTION_UP:
+				// saveLocationData(mLastWindow);
+				// break;
+				// }				
+				gestureDetector2.onTouch(event);
 
 			}
 		}

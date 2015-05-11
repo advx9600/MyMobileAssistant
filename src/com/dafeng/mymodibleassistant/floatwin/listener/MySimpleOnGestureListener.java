@@ -11,7 +11,7 @@ import android.view.MotionEvent;
 import android.view.GestureDetector.SimpleOnGestureListener;
 
 public class MySimpleOnGestureListener extends SimpleOnGestureListener {
-	private final int DOUBLE_CLICK_TIME = 200;
+	private final int DOUBLE_CLICK_TIME = 250;
 
 	private static SimpleFloatingWindowInt mMain;
 
@@ -138,6 +138,7 @@ public class MySimpleOnGestureListener extends SimpleOnGestureListener {
 		} else {
 			int xDis = mLastDownX - win.getLayoutParams().x;
 			int yDis = mLastDownY - win.getLayoutParams().y;
+			a.b("xDis:"+xDis+",yDis:"+yDis);
 			int rate = xDis / (yDis == 0 ? 1 : yDis);
 			// a.b("xDis:" + xDis + ",yDis:" + yDis + ",rate:" + rate);
 			isFlipOk = true;
