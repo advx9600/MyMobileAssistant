@@ -5,6 +5,9 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 
 import com.dafeng.mymodibleassistant.dao.TbApp;
 import com.dafeng.mymodibleassistant.dao.TbAppDao;
@@ -109,10 +112,11 @@ public class AppPresent {
 				.where(TbJumpDao.Properties.AppId.eq(curAppId)).list();
 		List<TbApp> apps = new ArrayList<>();
 		for (int i = 0; i < list.size(); i++) {
-			apps.add(a().queryBuilder().where(Properties.Id.eq(list.get(i).getJumpId())).unique());
+			apps.add(a().queryBuilder()
+					.where(Properties.Id.eq(list.get(i).getJumpId())).unique());
 		}
 
-		return removeUninstallItem(con,apps);
+		return removeUninstallItem(con, apps);
 	}
 
 	public static long getTbJumpId(long appId, long jumpToAppId) {
@@ -209,5 +213,30 @@ public class AppPresent {
 
 	public static void cancelJumpApp() {
 
+	}
+
+	public static Drawable getBackGround(Context con, List<TbApp> apps,int radio) {
+		if (apps.size() == 1)
+			return Util.getIconByAppPkg(con, apps.get(0).getPkg());
+		else if (apps.size() == 2) {
+			Drawable[] array = new Drawable[2];
+			array[0] = Util.getIconByAppPkg(con, apps.get(0).getPkg());
+			array[1] = Util.getIconByAppPkg(con, apps.get(1).getPkg());
+			LayerDrawable la = new LayerDrawable(array);					
+			la.setLayerInset(1, 0, 0, radio*2, radio*2);
+			la.setLayerInset(0, radio/2, radio/2, 0, 0);
+			return la;
+		} else if (apps.size() == 3) {
+			Drawable[] array = new Drawable[3];
+			array[0] = Util.getIconByAppPkg(con, apps.get(0).getPkg());
+			array[1] = Util.getIconByAppPkg(con, apps.get(1).getPkg());
+			array[2] = Util.getIconByAppPkg(con, apps.get(2).getPkg());
+			LayerDrawable la = new LayerDrawable(array);
+			la.setLayerInset(2, radio*2, radio*2, 0, 0);
+			la.setLayerInset(1, 0, 0, radio*2, radio*2);
+			la.setLayerInset(0, radio/2, radio/2, radio/2, radio/2);			
+			return la;
+		}
+		return null;
 	}
 }

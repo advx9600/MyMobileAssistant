@@ -145,11 +145,14 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 							if (!isNeedAlwaysShow()) {
 								if (mListTbJump.size() > 0) {
 									mFloatImg
-											.setImageDrawable(Util
-													.getIconByAppPkg(
+											.setImageDrawable(AppPresent
+													.getBackGround(
 															SimpleFloatingWindowBase.this,
-															mListTbJump.get(0)
-																	.getPkg()));
+															mListTbJump,
+															mShare.getInt(
+																	SimpleFloatingWindowInt.PREF_floatwin_height,
+																	com.dafeng.mymodibleassistant.b.b
+																			.getProperWidth())));
 									mFloatImg
 											.setBackgroundColor(Color.TRANSPARENT);
 								} else {
@@ -270,7 +273,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 
 	@Override
 	public boolean onTouchBody(int id, Window window, View view,
-			MotionEvent event) {		
+			MotionEvent event) {
 		if (id == POP_WIN_ID) {
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_UP:
@@ -284,7 +287,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 				// case MotionEvent.ACTION_UP:
 				// saveLocationData(mLastWindow);
 				// break;
-				// }				
+				// }
 				gestureDetector2.onTouch(event);
 
 			}
