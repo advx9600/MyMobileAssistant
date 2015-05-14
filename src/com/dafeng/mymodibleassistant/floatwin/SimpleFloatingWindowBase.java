@@ -352,7 +352,7 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 		startOutSideActivity(pkg, name, false, null);
 	}
 
-	private long tStartOutSideActivity_LastTime = 0;
+	// private long tStartOutSideActivity_LastTime = 0;
 
 	private void startOutSideActivity(String pkg, String name,
 			boolean isShowInputMethod, String curInputMethod) {
@@ -367,20 +367,20 @@ public class SimpleFloatingWindowBase extends StandOutWindow {
 				final ActivityManager.RunningTaskInfo info = taskInfo.get(i);
 				if (pkg.equals(info.topActivity.getPackageName())) {
 					/* android权限问题,切换时间要大于N秒 */
-					if (Math.abs(System.currentTimeMillis()
-							- tStartOutSideActivity_LastTime) > 5 * 1000) {
-						tStartOutSideActivity_LastTime = System
-								.currentTimeMillis();
-						am.moveTaskToFront(info.id,
-								ActivityManager.MOVE_TASK_WITH_HOME);
-						isHasStarted = true;
-					}
+					// if (Math.abs(System.currentTimeMillis()
+					// - tStartOutSideActivity_LastTime) > 5 * 1000) {
+					// tStartOutSideActivity_LastTime = System
+					// .currentTimeMillis();
+					am.moveTaskToFront(info.id,
+							ActivityManager.MOVE_TASK_WITH_HOME);
+					isHasStarted = true;
+					// }
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		a.b("isHasStared:" + isHasStarted);
 		if (!isHasStarted) {
 			Intent intent = new Intent();
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
