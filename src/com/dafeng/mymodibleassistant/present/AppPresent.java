@@ -118,13 +118,13 @@ public class AppPresent {
 		return removeUninstallItem(con, apps);
 	}
 
-	public static long getTbJumpId(long appId, long jumpToAppId) {
+	public static long getTbJumpId(long appId, long jumpToAppId,int numAt) {
 		List<TbJump> list = b()
 				.queryBuilder()
 				.where(TbJumpDao.Properties.AppId.eq(appId),
 						TbJumpDao.Properties.JumpId.eq(jumpToAppId)).list();
-		if (list.size() > 0) {
-			return list.get(0).getId();
+		if (list.size() > numAt) {
+			return list.get(numAt).getId();
 		}
 		return -1;
 	}

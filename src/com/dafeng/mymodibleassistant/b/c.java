@@ -59,6 +59,17 @@ public class c {
 		window.edit().commit();
 	}
 
+	private static int getJumpIdRepeatTimesLessThen(List<TbApp> mListTbJump, int numAt) {
+		int repeatNum = 0;
+		long id = mListTbJump.get(numAt).getId();
+		for (int i = 0; i < numAt; i++) {
+			if (id == mListTbJump.get(i).getId()) {
+				repeatNum++;
+			}
+		}
+		return repeatNum;
+	}
+	
 	public static void d(final long curAppId, List<TbApp> mListTbJump,
 			LinearLayout lay, final Context con, final LayoutInflater inflater,
 			View v) {
@@ -68,7 +79,7 @@ public class c {
 			for (int i = 0; i < mListTbJump.size(); i++) {
 				final TbApp app = mListTbJump.get(i);
 				final long id = app.getId();
-				final long tbJumpId = AppPresent.getTbJumpId(curAppId, id);
+				final long tbJumpId = AppPresent.getTbJumpId(curAppId, id, getJumpIdRepeatTimesLessThen(mListTbJump, i));
 				ImageButton btnJump = new ImageButton(lay.getContext());
 				// btnJump.setBackgroundDrawable(background);
 				btnJump.setBackgroundColor(Color.TRANSPARENT);
