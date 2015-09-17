@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.dafeng.mymodibleassistant.R;
+import com.dafeng.mymodibleassistant.a;
 import com.dafeng.mymodibleassistant.b.c;
 import com.dafeng.mymodibleassistant.dao.DaoSession;
 import com.dafeng.mymodibleassistant.dao.TbApp;
@@ -33,7 +34,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 import wei.mark.standout.StandOutWindow;
-import wei.mark.standout.a;
 import wei.mark.standout.ui.Window;
 
 public class SimpleFloatingWindowBase extends StandOutWindow {

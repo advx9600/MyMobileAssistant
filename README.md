@@ -7,7 +7,10 @@ MyModibleAssistant
 双击=返回前一个<br/>
 3击=退两步<br/>
 ## 编译
-需要https://github.com/advx9600/AppGenDb(在我自己目录下)生成相应文件和 StandOut 库
+需要https://github.com/advx9600/AppGenDb  (在我自己目录下)生成相应文件<br/>
+https://github.com/pingpongboss/StandOut <br/> 
+https://github.com/greenrobot/greenDAO <br/>
+现已做成压缩文件放在工程下面
 
 ## 问题
 有时切换无响应或很慢(5秒左右),这是因为权限不够
